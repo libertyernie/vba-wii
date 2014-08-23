@@ -35,7 +35,6 @@ int whichfb = 0; // Frame buffer toggle
 
 static Mtx GXmodelView2D;
 
-u8 * gameScreenTex = NULL; // a GX texture screen capture of the game
 u8 * gameScreenPng = NULL;
 int gameScreenPngSize = 0;
 
@@ -286,7 +285,7 @@ static GXRModeObj * FindVideoMode()
 			mode = &TVNtsc480Prog;
 			break;
 		case 3: // PAL (50Hz)
-			mode = &TVPal528IntDf;
+			mode = &TVPal576IntDfScale;
 			break;
 		case 4: // PAL (60Hz)
 			mode = &TVEurgb60Hz480IntDf;
@@ -314,17 +313,14 @@ static GXRModeObj * FindVideoMode()
 	#ifdef HW_RVL
 	bool pal = false;
 
-	if (mode == &TVPal528IntDf)
+	if (mode == &TVPal576IntDfScale)
 		pal = true;
 
 	if (CONF_GetAspectRatio() == CONF_ASPECT_16_9)
 	{
-		mode->fbWidth = 640;
-		mode->efbHeight = 456;
-		mode->viWidth = 686;
-
 		if (pal)
 		{
+			mode = &TVPal528IntDf;
 			mode->xfbHeight = 542;
 			mode->viHeight = 542;
 		}
@@ -333,12 +329,13 @@ static GXRModeObj * FindVideoMode()
 			mode->xfbHeight = 456;
 			mode->viHeight = 456;
 		}
+		
+		mode->fbWidth = 640;
+		mode->efbHeight = 456;
+		mode->viWidth = 686;
 	}
 	else
 	{
-		if (pal)
-			mode = &TVPal574IntDfScale;
-
 		mode->viWidth = 672;
 	}
 
@@ -404,10 +401,10 @@ InitializeVideo ()
 	VIDEO_Init();
 
 	// Allocate the video buffers
-	xfb[0] = (u32 *) memalign(32, 640*574*2);
-	xfb[1] = (u32 *) memalign(32, 640*574*2);
-	DCInvalidateRange(xfb[0], 640*574*2);
-	DCInvalidateRange(xfb[1], 640*574*2);
+	xfb[0] = (u32 *) memalign(32, 640*576*2);
+	xfb[1] = (u32 *) memalign(32, 640*576*2);
+	DCInvalidateRange(xfb[0], 640*576*2);
+	DCInvalidateRange(xfb[1], 640*576*2);
 	xfb[0] = (u32 *) MEM_K0_TO_K1 (xfb[0]);
 	xfb[1] = (u32 *) MEM_K0_TO_K1 (xfb[1]);
 
@@ -674,16 +671,15 @@ void GX_Render(int width, int height, u8 * buffer, int pitch)
  ***************************************************************************/
 void TakeScreenshot()
 {
-	int texSize = vmode->fbWidth * vmode->efbHeight * 4;
+	IMGCTX pngContext = PNGU_SelectImageFromBuffer(savebuffer);
 
-	if(gameScreenTex) free(gameScreenTex);
-	gameScreenTex = (u8 *)memalign(32, texSize);
-	if(gameScreenTex == NULL) return;
-	GX_SetTexCopySrc(0, 0, vmode->fbWidth, vmode->efbHeight);
-	GX_SetTexCopyDst(vmode->fbWidth, vmode->efbHeight, GX_TF_RGBA8, GX_FALSE);
-	GX_CopyTex(gameScreenTex, GX_FALSE);
-	GX_PixModeSync();
-	DCFlushRange(gameScreenTex, texSize);
+	if (pngContext != NULL)
+	{
+		gameScreenPngSize = PNGU_EncodeFromEFB(pngContext, vmode->fbWidth, vmode->efbHeight);
+		PNGU_ReleaseImageContext(pngContext);
+		gameScreenPng = (u8 *)malloc(gameScreenPngSize);
+		memcpy(gameScreenPng, savebuffer, gameScreenPngSize);
+	}
 }
 
 /****************************************************************************

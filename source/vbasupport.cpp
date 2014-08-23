@@ -354,7 +354,6 @@ bool SaveBatteryOrState(char * filepath, int action, bool silent)
 	if(!FindDevice(filepath, &device))
 		return 0;
 
-	// save screenshot - I would prefer to do this from gameScreenTex
 	if(action == FILE_SNAPSHOT && gameScreenPngSize > 0)
 	{
 		char screenpath[1024];
@@ -441,6 +440,7 @@ void systemOnSoundShutdown()
 ****************************************************************************/
 bool systemReadJoypads()
 {
+	UpdatePads();
 	return true;
 }
 

@@ -133,8 +133,6 @@ void ResetControls(int wiiCtrl)
  *
  * Scans pad and wpad
  ***************************************************************************/
-static int padsConnected = 0;
-static u64 prev, now;
 
 void
 UpdatePads()
@@ -143,17 +141,7 @@ UpdatePads()
 	WPAD_ScanPads();
 	#endif
 
-	now = gettime();
-
-	if(!padsConnected && diff_sec(prev, now) < 2)
-		return;
-
-	prev = now;
-
-	padsConnected = PAD_ScanPads();
-
-	if(!padsConnected)
-		return;
+	PAD_ScanPads();
 
 	int i = 3;
 	do {
@@ -181,8 +169,6 @@ SetupPads()
 	PAD_Init();
 
 	#ifdef HW_RVL
-	WPAD_Init();
-
 	// read wiimote accelerometer and IR data
 	WPAD_SetDataFormat(WPAD_CHAN_ALL,WPAD_FMT_BTNS_ACC_IR);
 	WPAD_SetVRes(WPAD_CHAN_ALL, screenwidth, screenheight);
@@ -317,58 +303,32 @@ void systemGameRumbleOnlyFor(int OnlyRumbleForFrames) {
 u32 StandardMovement(unsigned short chan)
 {
 	u32 J = 0;
+	double angle;
+	static const double THRES = 0.38268343236508984; // cos(67.5)
+
 	s8 pad_x = userInput[chan].pad.stickX;
 	s8 pad_y = userInput[chan].pad.stickY;
 	#ifdef HW_RVL
 	s8 wm_ax = userInput[0].WPAD_StickX(0);
 	s8 wm_ay = userInput[0].WPAD_StickY(0);
 	#endif
+	
 	/***
 	Gamecube Joystick input, same as normal
 	***/
 	// Is XY inside the "zone"?
 	if (pad_x * pad_x + pad_y * pad_y > PADCAL * PADCAL)
 	{
-		if (pad_y == 0)
-		{
-			if(pad_x > 0)
-			{ 
-				J |= VBA_RIGHT;
-			}
-			else if(pad_x < 0)
-			{
-				J |= VBA_LEFT;
-			}
-		}
-		if (pad_x == 0)
-		{
-			if(pad_y > 0)
-			{
-				J |= VBA_UP;
-			}
-			else if(pad_y < 0)
-			{
-				J |= VBA_DOWN;
-			}
-		}
-
-		if ((pad_x|pad_y) != 0)
-		{
-			if ((fabs((double)(pad_y) / (double)(pad_x))) < 2.41421356237)
-			{
-				if (pad_x >= 0)
-					J |= VBA_RIGHT;
-				else
-					J |= VBA_LEFT;
-			}
-			if ((fabs((double)(pad_x) / (double)(pad_y))) < 2.41421356237)
-			{
-				if (pad_y >= 0)
-					J |= VBA_UP;
-				else
-					J |= VBA_DOWN;
-			}
-		}
+		angle = atan2(pad_y, pad_x);
+		 
+		if(cos(angle) > THRES)
+			J |= VBA_RIGHT;
+		else if(cos(angle) < -THRES)
+			J |= VBA_LEFT;
+		if(sin(angle) > THRES)
+			J |= VBA_UP;
+		else if(sin(angle) < -THRES)
+			J |= VBA_DOWN;
 	}
 #ifdef HW_RVL
 	/***
@@ -377,47 +337,16 @@ u32 StandardMovement(unsigned short chan)
 	// Is XY inside the "zone"?
 	if (wm_ax * wm_ax + wm_ay * wm_ay > PADCAL * PADCAL)
 	{
-		/*** we don't want division by zero ***/
-		if (wm_ay == 0)
-		{
-			if(wm_ax > 0)
-			{ 
-				J |= VBA_RIGHT;
-			}
-			else if(pad_x < 0)
-			{
-				J |= VBA_LEFT;
-			}
-		}
-		if (wm_ax == 0)
-		{
-			if(wm_ay > 0)
-			{
-				J |= VBA_UP;
-			}
-			else if(pad_y < 0)
-			{
-				J |= VBA_DOWN;
-			}
-		}
-
-		if (wm_ax != 0 && wm_ay != 0)
-		{
-			if ((fabs((double)(wm_ay) / (double)(wm_ax))) < 2.41421356237)
-			{
-				if (wm_ax >= 0)
-					J |= VBA_RIGHT;
-				else
-					J |= VBA_LEFT;
-			}
-			if ((fabs((double)(wm_ax) / (double)(wm_ay))) < 2.41421356237)
-			{
-				if (wm_ay >= 0)
-					J |= VBA_UP;
-				else
-					J |= VBA_DOWN;
-			}
-		}
+		angle = atan2(wm_ay, wm_ax);
+				 
+		if(cos(angle) > THRES)
+			J |= VBA_RIGHT;
+		else if(cos(angle) < -THRES)
+			J |= VBA_LEFT;
+		if(sin(angle) > THRES)
+			J |= VBA_UP;
+		else if(sin(angle) < -THRES)
+			J |= VBA_DOWN;
 	}
 #endif
 	return J;
@@ -426,12 +355,12 @@ u32 StandardMovement(unsigned short chan)
 u32 StandardDPad(unsigned short pad)
 {
 	u32 J = 0;
-	u32 jp = PAD_ButtonsHeld(pad);
+	u32 jp = userInput[pad].pad.btns_h;
 #ifdef HW_RVL
 	u32 exp_type;
 	if ( WPAD_Probe(pad, &exp_type) != 0 )
 		exp_type = WPAD_EXP_NONE;
-	u32 wp = WPAD_ButtonsHeld(pad);
+	u32 wp = userInput[pad].wpad->btns_h;
 	if (wp & WPAD_BUTTON_RIGHT)
 		J |= VBA_RIGHT;
 	if (wp & WPAD_BUTTON_LEFT)
@@ -467,7 +396,7 @@ u32 StandardSideways(unsigned short pad)
 {
 	u32 J = 0;
 #ifdef HW_RVL
-	u32 wp = WPAD_ButtonsHeld(pad);
+	u32 wp = userInput[pad].wpad->btns_h;
 
 	if (wp & WPAD_BUTTON_RIGHT)
 		J |= VBA_UP;
@@ -507,7 +436,7 @@ u32 StandardClassic(unsigned short pad)
 {
 	u32 J = 0;
 #ifdef HW_RVL
-	u32 wp = WPAD_ButtonsHeld(pad);
+	u32 wp = userInput[pad].wpad->btns_h;
 
 	if (wp & WPAD_CLASSIC_BUTTON_RIGHT)
 		J |= VBA_RIGHT;
@@ -541,7 +470,7 @@ u32 StandardClassic(unsigned short pad)
 u32 StandardGamecube(unsigned short pad)
 {
 	u32 J = 0;
-	u32 jp = PAD_ButtonsHeld(pad);
+	u32 jp = userInput[pad].pad.btns_h;
 	if (jp & PAD_BUTTON_UP)
 		J |= VBA_UP;
 	if (jp & PAD_BUTTON_DOWN)
@@ -570,7 +499,7 @@ u32 StandardGamecube(unsigned short pad)
 u32 DecodeGamecube(unsigned short pad)
 {
 	u32 J = 0;
-	u32 jp = PAD_ButtonsHeld(pad);
+	u32 jp = userInput[pad].pad.btns_h;
 	for (u32 i = 0; i < MAXJP; ++i)
 	{
 		if (jp & btnmap[CTRLR_GCPAD][i])
@@ -971,8 +900,6 @@ bool MenuRequested()
 
 u32 GetJoy(int pad)
 {
-	UpdatePads();
-
 	// request to go back to menu
 	if (MenuRequested())
 	{
