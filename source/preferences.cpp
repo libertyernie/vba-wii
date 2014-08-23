@@ -167,6 +167,7 @@ preparePrefsData ()
 	createXMLSetting("SaveMethod", "Save Method", toStr(GCSettings.SaveMethod));
 	createXMLSetting("LoadFolder", "Load Folder", GCSettings.LoadFolder);
 	createXMLSetting("SaveFolder", "Save Folder", GCSettings.SaveFolder);
+	createXMLSetting("AppendAuto", "Append Auto to .SAV Files", toStr(GCSettings.AppendAuto));
 	//createXMLSetting("CheatFolder", "Cheats Folder", GCSettings.CheatFolder);
 
 	createXMLSection("Network", "Network Settings");
@@ -466,6 +467,7 @@ decodePrefsData ()
 			loadXMLSetting(&GCSettings.SaveMethod, "SaveMethod");
 			loadXMLSetting(GCSettings.LoadFolder, "LoadFolder", sizeof(GCSettings.LoadFolder));
 			loadXMLSetting(GCSettings.SaveFolder, "SaveFolder", sizeof(GCSettings.SaveFolder));
+			loadXMLSetting(&GCSettings.AppendAuto, "AppendAuto");
 			//loadXMLSetting(GCSettings.CheatFolder, "CheatFolder", sizeof(GCSettings.CheatFolder));
 
 			// Network Settings
@@ -602,6 +604,7 @@ DefaultSettings ()
 	sprintf (GCSettings.CheatFolder, "%s/cheats", APPFOLDER); // Path to cheat files
 	GCSettings.AutoLoad = 1;
 	GCSettings.AutoSave = 1;
+	GCSettings.AppendAuto = 1;
 
 	GCSettings.WiimoteOrientation = 0;
 

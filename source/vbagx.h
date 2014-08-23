@@ -70,6 +70,7 @@ struct SGCSettings{
     int		AutoSave;
     int		LoadMethod;    // For ROMS: Auto, SD, DVD, USB, Network (SMB)
 	int		SaveMethod;    // For SRAM, Freeze, Prefs: Auto, SD, USB, SMB
+    int		AppendAuto;    // 0 - no, 1 - yes
     int		videomode;     // 0 - automatic, 1 - NTSC (480i), 2 - Progressive (480p), 3 - PAL (50Hz), 4 - PAL (60Hz)
     int		scaling;       // 0 - default, 1 - partial stretch, 2 - stretch to fit, 3 - widescreen correction
 	int		render;		   // 0 - original, 1 - filtered, 2 - unfiltered

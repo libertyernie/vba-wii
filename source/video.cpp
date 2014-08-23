@@ -337,7 +337,7 @@ static GXRModeObj * FindVideoMode()
 	else
 	{
 		if (pal)
-			mode = &TVPal574IntDfScale;
+			mode = &TVPal576IntDfScale;
 
 		mode->viWidth = 672;
 	}

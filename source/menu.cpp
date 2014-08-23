@@ -3049,6 +3049,7 @@ static int MenuSettingsFile()
 	sprintf(options.name[i++], "Cheats Folder");
 	sprintf(options.name[i++], "Auto Load");
 	sprintf(options.name[i++], "Auto Save");
+	sprintf(options.name[i++], "Append Auto to .SAV Files");
 	options.length = i;
 	options.name[4][0] = 0; // hide cheats folder (not implemented)
 
@@ -3131,6 +3132,12 @@ static int MenuSettingsFile()
 				if (GCSettings.AutoSave > 3)
 					GCSettings.AutoSave = 0;
 				break;
+
+			case 7:
+				GCSettings.AppendAuto++;
+				if (GCSettings.AppendAuto > 1)
+					GCSettings.AppendAuto = 0;
+				break;
 		}
 
 		if(ret >= 0 || firstRun)
@@ -3201,6 +3208,9 @@ static int MenuSettingsFile()
 			else if (GCSettings.AutoSave == 1) sprintf (options.value[6],"SRAM");
 			else if (GCSettings.AutoSave == 2) sprintf (options.value[6],"Snapshot");
 			else if (GCSettings.AutoSave == 3) sprintf (options.value[6],"Both");
+
+			if (GCSettings.AppendAuto == 0) sprintf (options.value[7],"Off");
+			else if (GCSettings.AppendAuto == 1) sprintf (options.value[7],"On");
 
 			optionBrowser.TriggerUpdate();
 		}

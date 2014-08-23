@@ -156,7 +156,7 @@ devicecallback (void *arg)
 			usleep(THREAD_SLEEP);
 			devsleep -= THREAD_SLEEP;
 		}
-		UpdateCheck();
+		// UpdateCheck();
 	}
 	return NULL;
 }
@@ -492,6 +492,7 @@ bool GetFileSize(int i)
 
 static bool ParseDirEntries()
 {
+	struct stat s; // added
 	if(!dir)
 		return false;
 
@@ -517,7 +518,8 @@ static bool ParseDirEntries()
 		}
 		else
 		{
-			if(entry->d_type==DT_DIR)
+			stat(entry->d_name, &s); // changed (1)
+			if (s.st_mode & S_IFDIR) // changed (2)
 				isdir = 1;
 			else
 				isdir = 0;
