@@ -518,8 +518,7 @@ static bool ParseDirEntries()
 		}
 		else
 		{
-			stat(entry->d_name, &s); // changed (1)
-			if (s.st_mode & S_IFDIR) // changed (2)
+			if(entry->d_type==DT_DIR)
 				isdir = 1;
 			else
 				isdir = 0;
