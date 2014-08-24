@@ -3188,7 +3188,7 @@ static int MenuSettingsFile()
 					GCSettings.AutoSave = 0;
 				break;
 
-			case 7:
+			case 8:
 				GCSettings.AppendAuto++;
 				if (GCSettings.AppendAuto > 1)
 					GCSettings.AppendAuto = 0;
@@ -3265,8 +3265,8 @@ static int MenuSettingsFile()
 			else if (GCSettings.AutoSave == 2) sprintf (options.value[7],"Snapshot");
 			else if (GCSettings.AutoSave == 3) sprintf (options.value[7],"Both");
 
-			if (GCSettings.AppendAuto == 0) sprintf (options.value[7],"Off");
-			else if (GCSettings.AppendAuto == 1) sprintf (options.value[7],"On");
+			if (GCSettings.AppendAuto == 0) sprintf (options.value[8],"Off");
+			else if (GCSettings.AppendAuto == 1) sprintf (options.value[8],"On");
 
 			optionBrowser.TriggerUpdate();
 		}
