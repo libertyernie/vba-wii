@@ -42,6 +42,16 @@
 GuiImageData * pointer[4];
 #endif
 
+//#ifdef HW_RVL
+//	#include "mem2.h"
+//
+//	#define MEM_ALLOC(A) (u8*)mem2_malloc(A)
+//	#define MEM_DEALLOC(A) mem2_free(A)
+//#else
+	#define MEM_ALLOC(A) (u8*)memalign(32, A)
+	#define MEM_DEALLOC(A) free(A)
+//#endif
+
 static GuiTrigger * trigA = NULL;
 static GuiTrigger * trig2 = NULL;
 
@@ -301,7 +311,7 @@ UpdateGUI (void *arg)
 			for(i = 0; i <= 255; i += 15)
 			{
 				mainWindow->Draw();
-				Menu_DrawRectangle(0,0,screenwidth,screenheight,(GXColor){0, 0, 0, i},1);
+				Menu_DrawRectangle(0,0,screenwidth,screenheight,(GXColor){0, 0, 0, (u8)i},1);
 				Menu_Render();
 			}
 			ExitApp();
@@ -924,8 +934,15 @@ static int MenuGameSelection()
 	buttonWindow.Append(&exitBtn);
 
 	GuiFileBrowser gameBrowser(424, 268);
-	gameBrowser.SetPosition(50, 98);
+	gameBrowser.SetPosition(10, 98);
 	ResetBrowser();
+	
+	GuiImage preview;
+	preview.SetAlignment(ALIGN_RIGHT, ALIGN_MIDDLE);
+	preview.SetPosition(-10, 0);
+	u8* imgBuffer = MEM_ALLOC(512 * 512 * 4);
+	int  previousBrowserIndex = -1;
+	char screenshotPath[MAXJOLIET + 1];
 
 	HaltGui();
 	btnLogo->SetAlignment(ALIGN_RIGHT, ALIGN_TOP);
@@ -933,6 +950,7 @@ static int MenuGameSelection()
 	mainWindow->Append(&titleTxt);
 	mainWindow->Append(&gameBrowser);
 	mainWindow->Append(&buttonWindow);
+	mainWindow->Append(&preview);
 	ResumeGui();
 
 	#ifdef HW_RVL
@@ -946,6 +964,7 @@ static int MenuGameSelection()
 	gameBrowser.ResetState();
 	gameBrowser.fileList[0]->SetState(STATE_SELECTED);
 	gameBrowser.TriggerUpdate();
+	titleTxt.SetText(inSz ? szname : "Choose Game");
 
 	while(menu == MENU_NONE)
 	{
@@ -957,33 +976,65 @@ static int MenuGameSelection()
 			mainWindow->ChangeFocus(&gameBrowser);
 			gameBrowser.TriggerUpdate();
 		}
+		
+		//update game screenshot
+		if(previousBrowserIndex != browser.selIndex)
+		{			
+			previousBrowserIndex = browser.selIndex;
+			snprintf(screenshotPath, MAXJOLIET, "%s%s/%s.png", pathPrefix[GCSettings.LoadMethod], GCSettings.ScreenshotsFolder, browserList[browser.selIndex].displayname);
+			
+			AllocSaveBuffer();
+			int width, height;
+			if(LoadFile(screenshotPath, SILENT))
+			{				
+				if(DecodePNG(savebuffer, &width, &height, imgBuffer, 512, 512))
+				{
+					preview.SetImage(imgBuffer, width, height);
+					preview.SetScale(180.0f / width);
+				}
+				else
+				{
+					preview.SetImage(NULL, 0, 0);
+				}
+			}
+			else 
+			{
+				preview.SetImage(NULL, 0, 0);
+				
+			}
+			FreeSaveBuffer();
+		}
 
 		// update gameWindow based on arrow buttons
 		// set MENU_EXIT if A button pressed on a game
-		for(i=0; i < FILE_PAGESIZE; ++i)
+		for(i=0; i < FILE_PAGESIZE; i++)
 		{
 			if(gameBrowser.fileList[i]->GetState() == STATE_CLICKED)
 			{
 				gameBrowser.fileList[i]->ResetState();
+				
 				// check corresponding browser entry
 				if(browserList[browser.selIndex].isdir || IsSz())
-				{
-					if(IsSz())
-						res = BrowserLoadSz();
-					else
-						res = BrowserChangeFolder();
-
+				{	
+					HaltGui();
+					res = BrowserChangeFolder();
 					if(res)
 					{
 						gameBrowser.ResetState();
 						gameBrowser.fileList[0]->SetState(STATE_SELECTED);
 						gameBrowser.TriggerUpdate();
+						previousBrowserIndex = -1;			
 					}
 					else
 					{
 						menu = MENU_GAMESELECTION;
 						break;
 					}
+					
+					
+					titleTxt.SetText(inSz ? szname : "Choose Game");
+					
+					ResumeGui();
 				}
 				else
 				{
@@ -991,6 +1042,7 @@ static int MenuGameSelection()
 					ShutoffRumble();
 					#endif
 					mainWindow->SetState(STATE_DISABLED);
+					SavePrefs(SILENT);
 					if(BrowserLoadFile())
 						menu = MENU_EXIT;
 					else
@@ -998,6 +1050,8 @@ static int MenuGameSelection()
 				}
 			}
 		}
+		
+		
 
 		if(settingsBtn.GetState() == STATE_CLICKED)
 			menu = MENU_SETTINGS;
@@ -1011,6 +1065,8 @@ static int MenuGameSelection()
 	mainWindow->Remove(&titleTxt);
 	mainWindow->Remove(&buttonWindow);
 	mainWindow->Remove(&gameBrowser);
+	mainWindow->Remove(&preview);
+	MEM_DEALLOC(imgBuffer);
 	return menu;
 }
 
@@ -3041,6 +3097,7 @@ static int MenuSettingsFile()
 	sprintf(options.name[i++], "Load Folder");
 	sprintf(options.name[i++], "Save Folder");
 	sprintf(options.name[i++], "Cheats Folder");
+	sprintf(options.name[i++], "Screenshots Folder");
 	sprintf(options.name[i++], "Auto Load");
 	sprintf(options.name[i++], "Auto Save");
 	sprintf(options.name[i++], "Append Auto to .SAV Files");
@@ -3114,14 +3171,18 @@ static int MenuSettingsFile()
 			case 4:
 				OnScreenKeyboard(GCSettings.CheatFolder, MAXPATHLEN);
 				break;
-
+				
 			case 5:
+				OnScreenKeyboard(GCSettings.ScreenshotsFolder, MAXPATHLEN);
+				break;
+
+			case 6:
 				GCSettings.AutoLoad++;
 				if (GCSettings.AutoLoad > 2)
 					GCSettings.AutoLoad = 0;
 				break;
 
-			case 6:
+			case 7:
 				GCSettings.AutoSave++;
 				if (GCSettings.AutoSave > 3)
 					GCSettings.AutoSave = 0;
@@ -3193,15 +3254,16 @@ static int MenuSettingsFile()
 			snprintf (options.value[2], 35, "%s", GCSettings.LoadFolder);
 			snprintf (options.value[3], 35, "%s", GCSettings.SaveFolder);
 			//snprintf (options.value[4], 30, "%s", GCSettings.CheatFolder);
+			snprintf (options.value[5], 35, "%s", GCSettings.ScreenshotsFolder);
 
-			if (GCSettings.AutoLoad == 0) sprintf (options.value[5],"Off");
-			else if (GCSettings.AutoLoad == 1) sprintf (options.value[5],"SRAM");
-			else if (GCSettings.AutoLoad == 2) sprintf (options.value[5],"Snapshot");
+			if (GCSettings.AutoLoad == 0) sprintf (options.value[6],"Off");
+			else if (GCSettings.AutoLoad == 1) sprintf (options.value[6],"SRAM");
+			else if (GCSettings.AutoLoad == 2) sprintf (options.value[6],"Snapshot");
 
-			if (GCSettings.AutoSave == 0) sprintf (options.value[6],"Off");
-			else if (GCSettings.AutoSave == 1) sprintf (options.value[6],"SRAM");
-			else if (GCSettings.AutoSave == 2) sprintf (options.value[6],"Snapshot");
-			else if (GCSettings.AutoSave == 3) sprintf (options.value[6],"Both");
+			if (GCSettings.AutoSave == 0) sprintf (options.value[7],"Off");
+			else if (GCSettings.AutoSave == 1) sprintf (options.value[7],"SRAM");
+			else if (GCSettings.AutoSave == 2) sprintf (options.value[7],"Snapshot");
+			else if (GCSettings.AutoSave == 3) sprintf (options.value[7],"Both");
 
 			if (GCSettings.AppendAuto == 0) sprintf (options.value[7],"Off");
 			else if (GCSettings.AppendAuto == 1) sprintf (options.value[7],"On");
