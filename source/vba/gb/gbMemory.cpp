@@ -5,7 +5,6 @@
 #include "gb.h"
 u8 gbDaysinMonth [12] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 const u8 gbDisabledRam [8] = {0x80, 0xff, 0xf0, 0x00, 0x30, 0xbf, 0xbf, 0xbf};
-extern int gbHardware;
 extern int gbGBCColorType;
 extern gbRegister PC;
 
@@ -540,7 +539,6 @@ mapperMBC5 gbDataMBC5 = {
   0  // is rumble cartridge?
 };
 
-extern int ConfigRequested;
 // MBC5 ROM write registers
 void mapperMBC5ROM(u16 address, u8 value)
 {
@@ -581,18 +579,10 @@ void mapperMBC5ROM(u16 address, u8 value)
       gbMemoryMap[0x07] = &gbRom[tmpAddress + 0x3000];
     }
     break;
-  case 0x4000: // RAM bank select, plus rumble
-    // Some games support rumble, such as Disney Tarzan, but aren't on a
-	// rumble cartridge. As long as the RAM is less than or equal to 256Kbit
-	// we know that the last address line is not used for real RAM addresses,
-	// so it must be a rumble signal instead.
-    if(gbDataMBC5.isRumbleCartridge) {
-	  systemCartridgeRumble(value & 0x08);
+  case 0x4000: // RAM bank select
+    if(gbDataMBC5.isRumbleCartridge)
       value &= 0x07;
-	} else if (gbRamSizeMask <= 0x7FFF) {
-	  systemPossibleCartridgeRumble(value & 0x08);
-      value &= 0x07;
-    } else
+    else
       value &= 0x0f;
     if(value == gbDataMBC5.mapperRAMBank)
       break;

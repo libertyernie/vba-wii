@@ -17,7 +17,12 @@ typedef union {
   u16 W;
 } gbRegister;
 
+extern gbRegister AF, BC, DE, HL, SP, PC;
+extern u16 IFF;
+int gbDis(char *, u16);
+
 bool gbLoadRom(const char *);
+bool gbUpdateSizes();
 void gbEmulate(int);
 void gbWriteMemory(register u16, register u8);
 void gbDrawLine();
@@ -38,9 +43,8 @@ bool gbWritePNGFile(const char *);
 bool gbWriteBMPFile(const char *);
 bool gbReadGSASnapshot(const char *);
 
-extern struct EmulatedSystem GBSystem;
+extern int gbHardware;
 
-bool MemgbReadBatteryFile(char * membuffer, int read);
-int MemgbWriteBatteryFile(char * membuffer);
+extern struct EmulatedSystem GBSystem;
 
 #endif // GB_H
