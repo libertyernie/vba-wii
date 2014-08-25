@@ -47,7 +47,6 @@ extern bool ROMLoaded;
 extern bool loadingFile;
 extern char szpath[MAXPATHLEN];
 extern bool inSz;
-extern char szname[MAXPATHLEN];
 
 enum
 {

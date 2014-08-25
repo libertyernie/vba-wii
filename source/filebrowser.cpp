@@ -35,7 +35,6 @@ BROWSERINFO browser;
 BROWSERENTRY * browserList = NULL; // list of files/folders in browser
 
 char szpath[MAXPATHLEN];
-char szname[MAXPATHLEN];
 bool inSz = false;
 
 char ROMFilename[512];
@@ -212,8 +211,6 @@ int UpdateDirName()
 	
 			/* remove last subdirectory name */
 			size = strlen(browser.dir) - size - 1;
-			strncpy(GCSettings.LastFileLoaded, &browser.dir[size], strlen(browser.dir) - size - 1); //set as loaded file the previous dir
-			GCSettings.LastFileLoaded[strlen(browser.dir) - size - 1] = 0;
 			browser.dir[size] = 0;
 		}
 
@@ -446,11 +443,12 @@ void ShortenFilename(char * returnstring, char * inputstring)
  ***************************************************************************/
 int BrowserLoadSz()
 {
-	memset(szpath, 0, MAXPATHLEN);
-	strncpy(szpath, browser.dir, strlen(browser.dir) - 1);
-	
-	strncpy(szname, strrchr(szpath, '/') + 1, strrchr(szpath, '.') - strrchr(szpath, '/'));
-	*strrchr(szname, '.') = '\0';
+	char filepath[MAXPATHLEN];
+	memset(filepath, 0, MAXPATHLEN);
+
+	// we'll store the 7z filepath for extraction later
+	if(!MakeFilePath(szpath, FILE_ROM))
+		return 0;
 
 	int szfiles = SzParse(szpath);
 	if(szfiles)
@@ -478,7 +476,7 @@ int BrowserLoadFile()
 
 	// store the filename (w/o ext) - used for sram/freeze naming
 	StripExt(ROMFilename, browserList[browser.selIndex].filename);
-	snprintf(GCSettings.LastFileLoaded, MAXPATHLEN, "%s", browserList[browser.selIndex].filename);
+	strcpy(loadedFile, browserList[browser.selIndex].filename);
 
 	loadingFile = true;
 	ROMLoaded = LoadVBAROM();
@@ -522,25 +520,15 @@ int BrowserChangeFolder()
 		SzClose();
 	}
 
-	if(!UpdateDirName()) 
+	if(!UpdateDirName())
 		return -1;
 
-	HaltParseThread();
+	HaltParseThread(); // halt parsing
 	CleanupPath(browser.dir);
-	ResetBrowser();
+	ResetBrowser(); // reset browser
 
 	if(browser.dir[0] != 0)
-	{
-		if(strstr(browser.dir, ".7z"))
-		{
-			BrowserLoadSz();
-		}
-		else 
-		{
-			ParseDirectory(true, true);
-		}
-		FindAndSelectLastLoadedFile();
-	}
+		ParseDirectory();
 
 	if(browser.numEntries == 0)
 	{

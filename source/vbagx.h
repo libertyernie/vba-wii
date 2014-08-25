@@ -85,15 +85,14 @@ struct SGCSettings{
 	int		Rumble;
 	int 	language;
 	char	LoadFolder[MAXPATHLEN];  // Path to game files
-	char	LastFileLoaded[MAXPATHLEN]; //Last file loaded filename
 	char	SaveFolder[MAXPATHLEN];  // Path to save files
 	char	CheatFolder[MAXPATHLEN]; // Path to cheat files
-	char	ScreenshotsFolder[MAXPATHLEN]; //Path to screenshots files
 	char	smbip[80];
 	char	smbuser[20];
 	char	smbpwd[20];
 	char	smbshare[20];
 };
+
 void ExitApp();
 void ShutdownWii();
 bool SupportedIOS(u32 ios);
@@ -104,7 +103,7 @@ extern int ConfigRequested;
 extern int ShutdownRequested;
 extern int ExitRequested;
 extern char appPath[];
-
+extern char loadedFile[];
 extern FreeTypeGX *fontSystem[];
 
 #endif

@@ -18,8 +18,7 @@
 #include <fat.h>
 #include <unistd.h>
 
-//#define SAVEBUFFERSIZE (1024 * 1024 * 2)
-#define SAVEBUFFERSIZE (1024 * 512)
+#define SAVEBUFFERSIZE (1024 * 1024 * 2)
 
 void InitDeviceThread();
 void ResumeDeviceThread();
@@ -33,7 +32,6 @@ bool ChangeInterface(int device, bool silent);
 bool ChangeInterface(char * filepath, bool silent);
 void CreateAppPath(char * origpath);
 bool GetFileSize(int i);
-void FindAndSelectLastLoadedFile();
 int ParseDirectory(bool waitParse = false, bool filter = true);
 void AllocSaveBuffer();
 void FreeSaveBuffer();
