@@ -526,7 +526,6 @@ void FindAndSelectLastLoadedFile ()
 
 static bool ParseDirEntries()
 {
-	struct stat s; // added
 	if(!dir)
 		return false;
 
