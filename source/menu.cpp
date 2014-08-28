@@ -555,6 +555,11 @@ void InfoPrompt(const char *msg)
 	WindowPrompt("Information", msg, "OK", NULL);
 }
 
+int YesNoPrompt(const char *msg)
+{
+	return WindowPrompt("Goomba", msg, "Yes", "No");
+}
+
 /****************************************************************************
  * OnScreenKeyboard
  *

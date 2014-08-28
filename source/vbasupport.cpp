@@ -45,6 +45,7 @@
 #include "vba/gb/gbGlobals.h"
 #include "vba/gb/gbCheats.h"
 #include "vba/gb/gbSound.h"
+#include "goomba/goombarom.h"
 
 static u32 start;
 int cartridgeType = 0;
@@ -829,7 +830,15 @@ extern bool gbUpdateSizes();
 
 bool LoadGBROM()
 {
-	gbRom = (u8 *)malloc(1024*1024*4); // allocate 4 MB to GB ROM
+	if (browserList[browser.selIndex].length > 1024*1024*8) {
+		InfoPrompt("ROM size is too large (> 8 MB)");
+		return false;
+	}
+	gbRom = (u8 *)malloc(1024*1024*8); // 32 MB is too much for sure
+	if (!gbRom) {
+		InfoPrompt("Unable to allocate 8 MB of memory");
+		return false;
+	}
 	bios = (u8 *)calloc(1,0x100);
 
 	systemSaveUpdateCounter = SYSTEM_SAVE_NOT_UPDATED;
@@ -847,6 +856,24 @@ bool LoadGBROM()
 	{
 		gbRomSize = LoadSzFile(szpath, (unsigned char *)gbRom);
 	}
+	
+	const void* firstRom = gb_first_rom(gbRom, gbRomSize);
+	if (firstRom != NULL && firstRom != gbRom) {
+		char msgbuf[32];
+		const void* rom;
+		for (rom = firstRom; rom != NULL; rom = gb_next_rom(gbRom, gbRomSize, rom)) {
+			sprintf(msgbuf, "Load %s?", gb_get_title(rom, NULL));
+			if (YesNoPrompt(msgbuf)) {
+				gbRomSize = gb_rom_size(rom);
+				memmove(gbRom, rom, gbRomSize);
+				break;
+			}
+		}
+		if (rom == NULL) {
+			InfoPrompt("No more ROMs found in the file.");
+			return false;
+		}
+	}
 
 	if(gbRomSize <= 0)
 		return false;
@@ -857,7 +884,7 @@ bool LoadGBROM()
 bool LoadVBAROM()
 {
 	cartridgeType = 0;
-	bool loaded = false;
+	int loaded = 0;
 
 	// image type (checks file extension)
 	if(utilIsGBAImage(browserList[browser.selIndex].filename))
@@ -912,44 +939,46 @@ bool LoadVBAROM()
 	VMClose(); // cleanup GBA memory
 	gbCleanUp(); // cleanup GB memory
 
-	switch(cartridgeType)
+	if(cartridgeType == 2)
 	{
-		case 2:
-			emulator = GBASystem;
-			srcWidth = 240;
-			srcHeight = 160;
-			loaded = VMCPULoadROM();
-			srcPitch = 484;
-			soundSetSampleRate(22050); //44100 / 2
-			cpuSaveType = 0;
-			break;
+		emulator = GBASystem;
+		srcWidth = 240;
+		srcHeight = 160;
+		loaded = VMCPULoadROM();
+		srcPitch = 484;
+		soundSetSampleRate(22050); //44100 / 2
+		cpuSaveType = 0;
+		if (loaded == 2) {
+			loaded = 0;
+			cartridgeType = 1;
+		}
+	}
+	
+	if (cartridgeType == 1)
+	{
+		emulator = GBSystem;
+		gbBorderOn = 0; // GB borders always off
 
-		case 1:
-			emulator = GBSystem;
+		if(gbBorderOn)
+		{
+			srcWidth = 256;
+			srcHeight = 224;
+			gbBorderLineSkip = 256;
+			gbBorderColumnSkip = 48;
+			gbBorderRowSkip = 40;
+		}
+		else
+		{
+			srcWidth = 160;
+			srcHeight = 144;
+			gbBorderLineSkip = 160;
+			gbBorderColumnSkip = 0;
+			gbBorderRowSkip = 0;
+		}
 
-			gbBorderOn = 0; // GB borders always off
-
-			if(gbBorderOn)
-			{
-				srcWidth = 256;
-				srcHeight = 224;
-				gbBorderLineSkip = 256;
-				gbBorderColumnSkip = 48;
-				gbBorderRowSkip = 40;
-			}
-			else
-			{
-				srcWidth = 160;
-				srcHeight = 144;
-				gbBorderLineSkip = 160;
-				gbBorderColumnSkip = 0;
-				gbBorderRowSkip = 0;
-			}
-
-			loaded = LoadGBROM();
-			srcPitch = 324;
-			soundSetSampleRate(44100);
-			break;
+		loaded = LoadGBROM();
+		srcPitch = 324;
+		soundSetSampleRate(44100);
 	}
 
 	if(!loaded)

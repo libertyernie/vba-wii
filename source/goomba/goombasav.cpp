@@ -22,7 +22,6 @@ When compiling in Visual Studio, set all goombasav files to compile
 as C++ code (Properties -> C/C++ -> Advanced -> Compile As.)
 */
 
-#include <memory.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
