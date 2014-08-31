@@ -45,7 +45,9 @@
 #include "vba/gb/gbGlobals.h"
 #include "vba/gb/gbCheats.h"
 #include "vba/gb/gbSound.h"
+
 #include "goomba/goombarom.h"
+#include "goomba/goombasav.h"
 
 static u32 start;
 int cartridgeType = 0;
@@ -268,7 +270,33 @@ bool LoadBatteryOrState(char * filepath, int action, bool silent)
 
 	// load the file into savebuffer
 	offset = LoadFile(filepath, silent);
-
+			
+	if (cartridgeType == 1 && goomba_is_sram(savebuffer)) {
+		void* cleaned = goomba_cleanup(savebuffer);
+		if (savebuffer == NULL) {
+			InfoPrompt(goomba_last_error());
+		} else {
+			if (cleaned != savebuffer) {
+				memcpy(savebuffer, cleaned, GOOMBA_COLOR_SRAM_SIZE);
+				free(cleaned);
+			}
+			stateheader* sh = stateheader_for(savebuffer, RomTitle);
+			if (sh == NULL) {
+				InfoPrompt(goomba_last_error());
+			} else {
+				InfoPrompt(stateheader_str(sh));
+				goomba_size_t outsize;
+				void* gbc_sram = goomba_extract(savebuffer, sh, &outsize);
+				if (gbc_sram == NULL) {
+					InfoPrompt(goomba_last_error());
+				} else {
+					memcpy(savebuffer, gbc_sram, outsize);
+					offset = outsize;
+					free(gbc_sram);
+				}
+			}
+		}
+	}
 	// load savebuffer into VBA memory
 	if (offset > 0)
 	{
@@ -373,6 +401,37 @@ bool SaveBatteryOrState(char * filepath, int action, bool silent)
 			datasize = MemgbWriteBatteryFile((char *)savebuffer);
 		else
 			datasize = MemCPUWriteBatteryFile((char *)savebuffer);
+		
+		if (cartridgeType == 1) {
+			// check for goomba sram format
+			char* old_sram = (char*)malloc(GOOMBA_COLOR_SRAM_SIZE);
+			size_t br = LoadFile(old_sram, filepath, GOOMBA_COLOR_SRAM_SIZE, true);
+			if (br == GOOMBA_COLOR_SRAM_SIZE && goomba_is_sram(old_sram)) {
+				void* cleaned = goomba_cleanup(old_sram);
+				if (cleaned == NULL) {
+					InfoPrompt(goomba_last_error());
+				} else {
+					if (cleaned != old_sram) {
+						free(old_sram);
+						old_sram = (char*)cleaned;
+					}
+					stateheader* sh = stateheader_for(old_sram, RomTitle);
+					if (sh == NULL) {
+						InfoPrompt(goomba_last_error());
+					} else {
+						void* new_sram = goomba_new_sav(old_sram, sh, savebuffer, datasize);
+						if (new_sram == NULL) {
+							InfoPrompt(goomba_last_error());
+						} else {
+							memcpy(savebuffer, new_sram, GOOMBA_COLOR_SRAM_SIZE);
+							datasize = GOOMBA_COLOR_SRAM_SIZE;
+							free(new_sram);
+						}
+					}
+				}
+			}
+			free(old_sram);
+		}
 	}
 	else
 	{
