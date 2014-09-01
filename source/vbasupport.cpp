@@ -274,7 +274,7 @@ bool LoadBatteryOrState(char * filepath, int action, bool silent)
 	if (cartridgeType == 1 && goomba_is_sram(savebuffer)) {
 		void* cleaned = goomba_cleanup(savebuffer);
 		if (savebuffer == NULL) {
-			InfoPrompt(goomba_last_error());
+			ErrorPrompt(goomba_last_error());
 		} else {
 			if (cleaned != savebuffer) {
 				memcpy(savebuffer, cleaned, GOOMBA_COLOR_SRAM_SIZE);
@@ -282,13 +282,13 @@ bool LoadBatteryOrState(char * filepath, int action, bool silent)
 			}
 			stateheader* sh = stateheader_for(savebuffer, RomTitle);
 			if (sh == NULL) {
-				InfoPrompt(goomba_last_error());
+				ErrorPrompt(goomba_last_error());
 			} else {
 				InfoPrompt(stateheader_str(sh));
 				goomba_size_t outsize;
 				void* gbc_sram = goomba_extract(savebuffer, sh, &outsize);
 				if (gbc_sram == NULL) {
-					InfoPrompt(goomba_last_error());
+					ErrorPrompt(goomba_last_error());
 				} else {
 					memcpy(savebuffer, gbc_sram, outsize);
 					offset = outsize;
@@ -403,13 +403,15 @@ bool SaveBatteryOrState(char * filepath, int action, bool silent)
 			datasize = MemCPUWriteBatteryFile((char *)savebuffer);
 		
 		if (cartridgeType == 1) {
+			InfoPrompt("Goomba detected - will save");
 			// check for goomba sram format
-			char* old_sram = (char*)malloc(GOOMBA_COLOR_SRAM_SIZE);
-			size_t br = LoadFile(old_sram, filepath, GOOMBA_COLOR_SRAM_SIZE, true);
-			if (br == GOOMBA_COLOR_SRAM_SIZE && goomba_is_sram(old_sram)) {
+			// EZ-Flash IV can sometimes add 32KB onto the end for no apparent reason.
+			char* old_sram = (char*)malloc(GOOMBA_COLOR_SRAM_SIZE + 32768);
+			size_t br = LoadFile(old_sram, filepath, GOOMBA_COLOR_SRAM_SIZE + 32768, true);
+			if (br >= GOOMBA_COLOR_SRAM_SIZE && goomba_is_sram(old_sram)) {
 				void* cleaned = goomba_cleanup(old_sram);
 				if (cleaned == NULL) {
-					InfoPrompt(goomba_last_error());
+					ErrorPrompt(goomba_last_error());
 				} else {
 					if (cleaned != old_sram) {
 						free(old_sram);
@@ -417,11 +419,11 @@ bool SaveBatteryOrState(char * filepath, int action, bool silent)
 					}
 					stateheader* sh = stateheader_for(old_sram, RomTitle);
 					if (sh == NULL) {
-						InfoPrompt(goomba_last_error());
+						ErrorPrompt(goomba_last_error());
 					} else {
 						void* new_sram = goomba_new_sav(old_sram, sh, savebuffer, datasize);
 						if (new_sram == NULL) {
-							InfoPrompt(goomba_last_error());
+							ErrorPrompt(goomba_last_error());
 						} else {
 							memcpy(savebuffer, new_sram, GOOMBA_COLOR_SRAM_SIZE);
 							datasize = GOOMBA_COLOR_SRAM_SIZE;
@@ -431,6 +433,7 @@ bool SaveBatteryOrState(char * filepath, int action, bool silent)
 				}
 			}
 			free(old_sram);
+			InfoPrompt("Saved.");
 		}
 	}
 	else
@@ -922,7 +925,7 @@ bool LoadGBROM()
 		const void* rom;
 		for (rom = firstRom; rom != NULL; rom = gb_next_rom(gbRom, gbRomSize, rom)) {
 			sprintf(msgbuf, "Load %s?", gb_get_title(rom, NULL));
-			if (YesNoPrompt(msgbuf)) {
+			if (YesNoPrompt(msgbuf, true)) {
 				gbRomSize = gb_rom_size(rom);
 				memmove(gbRom, rom, gbRomSize);
 				break;

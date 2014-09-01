@@ -173,7 +173,7 @@ int VMCPULoadROM()
 	}
 
 	if(gb_first_rom(rom, GBAROMSize)) {
-		int r = YesNoPrompt("This file contains uncompressed Game Boy (Color) ROMs. Do you want to run these?");
+		int r = YesNoPrompt("This file contains uncompressed Game Boy (Color) ROMs. Do you want to run these?", true);
 		if (r) {
 			return 2;
 		}

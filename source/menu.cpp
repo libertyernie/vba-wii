@@ -129,7 +129,7 @@ void ResetText()
  * presenting a user with a choice
  ***************************************************************************/
 int
-WindowPrompt(const char *title, const char *msg, const char *btn1Label, const char *btn2Label)
+WindowPrompt(const char *title, const char *msg, const char *btn1Label, const char *btn2Label, bool btn1Default)
 {
 	if(!mainWindow || ExitRequested || ShutdownRequested)
 		return 0;
@@ -212,8 +212,16 @@ WindowPrompt(const char *title, const char *msg, const char *btn1Label, const ch
 	mainWindow->ChangeFocus(&promptWindow);
 	if(btn2Label)
 	{
-		btn1.ResetState();
-		btn2.SetState(STATE_SELECTED);
+		if (btn1Default)
+		{
+			btn2.ResetState();
+			btn1.SetState(STATE_SELECTED);
+		}
+		else
+		{
+			btn1.ResetState();
+			btn2.SetState(STATE_SELECTED);
+		}
 	}
 	ResumeGui();
 
@@ -234,6 +242,12 @@ WindowPrompt(const char *title, const char *msg, const char *btn1Label, const ch
 	mainWindow->SetState(STATE_DEFAULT);
 	ResumeGui();
 	return choice;
+}
+
+int
+WindowPrompt(const char *title, const char *msg, const char *btn1Label, const char *btn2Label)
+{
+	return WindowPrompt(title, msg, btn1Label, btn2Label, false);
 }
 
 #ifdef HW_RVL
@@ -555,9 +569,9 @@ void InfoPrompt(const char *msg)
 	WindowPrompt("Information", msg, "OK", NULL);
 }
 
-int YesNoPrompt(const char *msg)
+int YesNoPrompt(const char *msg, bool yesDefault)
 {
-	return WindowPrompt("Goomba", msg, "Yes", "No");
+	return WindowPrompt("Goomba", msg, "Yes", "No", yesDefault);
 }
 
 /****************************************************************************
