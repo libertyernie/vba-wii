@@ -405,9 +405,8 @@ bool SaveBatteryOrState(char * filepath, int action, bool silent)
 		if (cartridgeType == 1) {
 			InfoPrompt("Goomba detected - will save");
 			// check for goomba sram format
-			// EZ-Flash IV can sometimes add 32KB onto the end for no apparent reason.
-			char* old_sram = (char*)malloc(GOOMBA_COLOR_SRAM_SIZE + 32768);
-			size_t br = LoadFile(old_sram, filepath, GOOMBA_COLOR_SRAM_SIZE + 32768, true);
+			char* old_sram = (char*)malloc(GOOMBA_COLOR_SRAM_SIZE);
+			size_t br = LoadFile(old_sram, filepath, GOOMBA_COLOR_SRAM_SIZE, true);
 			if (br >= GOOMBA_COLOR_SRAM_SIZE && goomba_is_sram(old_sram)) {
 				void* cleaned = goomba_cleanup(old_sram);
 				if (cleaned == NULL) {
