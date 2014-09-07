@@ -18,7 +18,9 @@ extern "C" {
 #include "gba/RTC.h"
 #include "common/Port.h"
 
+#ifndef NO_FEX
 #include "fex/fex.h"
+#endif
 
 extern "C" {
 #include "common/memgzio.h"
@@ -387,6 +389,7 @@ void utilStripDoubleExtension(const char *file, char *buffer)
   }
 }
 
+#ifndef NO_FEX
 // Opens and scans archive using accept(). Returns fex_t if found.
 // If error or not found, displays message and returns NULL.
 static fex_t* scan_arc(const char *file, bool (*accept)(const char *),
@@ -429,6 +432,7 @@ static fex_t* scan_arc(const char *file, bool (*accept)(const char *),
 	}
 	return fe;
 }
+#endif
 
 static bool utilIsImage(const char *file)
 {
@@ -449,6 +453,7 @@ IMAGE_TYPE utilFindType(const char *file)
 
 IMAGE_TYPE utilFindType(const char *file, char (&buffer)[2048])
 {
+#ifndef NO_FEX
 #ifdef WIN32
 	DWORD dwNum = MultiByteToWideChar (CP_ACP, 0, file, -1, NULL, 0);
 	wchar_t *pwText;
@@ -478,6 +483,7 @@ IMAGE_TYPE utilFindType(const char *file, char (&buffer)[2048])
 		file = buffer;
 //	}
 #endif
+#endif
 	return utilIsGBAImage(file) ? IMAGE_GBA : IMAGE_GB;
 }
 
@@ -496,6 +502,12 @@ u8 *utilLoad(const char *file,
 {
 	// find image file
 	char buffer [2048];
+#ifdef NO_FEX
+	FILE* f = fopen(file, "rb");
+	fseek(f, 0, SEEK_END);
+	int fileSize = ftell(f);
+	fseek(f, 0, SEEK_SET);
+#else
 #ifdef WIN32
 	DWORD dwNum = MultiByteToWideChar (CP_ACP, 0, file, -1, NULL, 0);
 	wchar_t *pwText;
@@ -521,6 +533,7 @@ u8 *utilLoad(const char *file,
 	int fileSize = fex_size(fe);
 	if(size == 0)
 		size = fileSize;
+#endif
 
 	u8 *image = data;
 
@@ -528,7 +541,11 @@ u8 *utilLoad(const char *file,
 		// allocate buffer memory if none was passed to the function
 		image = (u8 *)malloc(utilGetSize(size));
 		if(image == NULL) {
+#ifdef NO_FEX
+			fclose(f);
+#else
 			fex_close(fe);
+#endif
 			systemMessage(MSG_OUT_OF_MEMORY, N_("Failed to allocate memory for %s"),
 										"data");
 			return NULL;
@@ -538,8 +555,14 @@ u8 *utilLoad(const char *file,
 
 	// Read image
 	int read = fileSize <= size ? fileSize : size; // do not read beyond file
+#ifdef NO_FEX
+	int br = fread(image, 1, read, f);
+	const char* err = (br < read) ? "too few bytes from fread" : NULL;
+	fclose(f);
+#else
 	err = fex_read(fe, image, read);
 	fex_close(fe);
+#endif
 	if(err) {
 		systemMessage(MSG_ERROR_READING_IMAGE,
 									N_("Error reading image from %s: %s"), buffer, err);

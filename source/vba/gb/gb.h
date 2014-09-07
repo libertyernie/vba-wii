@@ -47,4 +47,8 @@ extern int gbHardware;
 
 extern struct EmulatedSystem GBSystem;
 
+// For VBA-GX
+bool MemgbReadBatteryFile(char * membuffer, int read);
+int MemgbWriteBatteryFile(char * membuffer);
+
 #endif // GB_H
