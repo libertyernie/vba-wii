@@ -7,7 +7,6 @@
 #include "vmmem.h"
 
 #include <time.h>
-#include <memory.h>
 #include <string.h>
 
 // Defined in VGA-GX input.cpp

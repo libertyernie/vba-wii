@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include <memory.h>
+#include <string.h>
 #include "../System.h"
 
 u8 gbPrinterStatus = 0;

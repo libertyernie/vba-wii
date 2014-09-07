@@ -1,4 +1,4 @@
-#include <memory.h>
+#include <string.h>
 
 #include "../common/Types.h"
 #include "../Util.h"

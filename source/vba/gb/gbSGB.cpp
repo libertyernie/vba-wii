@@ -1,5 +1,5 @@
 #include <stdlib.h>
-#include <memory.h>
+#include <string.h>
 
 #include "../System.h"
 #include "../common/Port.h"
