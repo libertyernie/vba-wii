@@ -4135,15 +4135,22 @@ void CPULoop(int ticks)
 union u8h
 {
    struct
+#ifndef WORDS_BIGENDIAN
    {
-      /* 0*/	unsigned lo:4;
-      /* 4*/	unsigned hi:4;
+      /* 0*/	unsigned char lo:4;
+      /* 4*/	unsigned char hi:4;
+#else
+   {
+      /* 4*/	unsigned char hi:4;
+      /* 0*/	unsigned char lo:4;
+#endif
    } __attribute__ ((packed));
    u8 val;
 };
 
 union TileEntry
 {
+#ifndef WORDS_BIGENDIAN
    struct
    {
       /* 0*/	unsigned tileNum:10;
@@ -4151,6 +4158,15 @@ union TileEntry
       /*13*/	unsigned vFlip:1;
       /*14*/	unsigned palette:4;
    };
+#else
+   struct
+   {
+      /*14*/	unsigned palette:4;
+      /*13*/	unsigned vFlip:1;
+      /*12*/	unsigned hFlip:1;
+      /* 0*/	unsigned tileNum:10;
+   };
+#endif
    u16 val;
 };
 
