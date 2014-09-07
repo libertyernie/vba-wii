@@ -75,7 +75,7 @@ int systemGreenShift = 0;
 int systemColorDepth = 0;
 u16 systemGbPalette[24];
 u16 systemColorMap16[0x10000];
-u32 *systemColorMap32 = NULL;
+u32 systemColorMap32[0x10000];
 
 void gbSetPalette(u32 RRGGBB[]);
 bool StartColorizing();
@@ -940,6 +940,19 @@ bool LoadGBROM()
 		return false;
 
 	return gbUpdateSizes();
+}
+
+bool utilIsZipFile(const char* file)
+{
+  if(strlen(file) > 4)
+    {
+      char * p = strrchr(file,'.');
+      if(p != NULL)
+        {
+          if(strcasecmp(p, ".zip") == 0)
+            return true;
+        }
+	}
 }
 
 bool LoadVBAROM()
