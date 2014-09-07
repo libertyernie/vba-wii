@@ -825,6 +825,12 @@ LoadFile (char * rbuffer, char *filepath, size_t length, bool silent)
 
 				while(!feof(file))
 				{
+					// If the size requested is *less* than the filesize, only read that much - we don't want to overrun the buffer
+					int toread = 4096;
+					if (length > 0 && offset+toread > length) {
+						toread = length - offset;
+					}
+
 					ShowProgress ("Loading...", offset, size);
 					readsize = fread (rbuffer + offset, 1, 4096, file); // read in next chunk
 
@@ -832,6 +838,9 @@ LoadFile (char * rbuffer, char *filepath, size_t length, bool silent)
 						break; // reading finished (or failed)
 
 					offset += readsize;
+					if (length > 0 && offset >= length) {
+						break;
+					}
 				}
 				size = offset;
 				CancelAction();
