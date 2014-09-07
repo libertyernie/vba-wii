@@ -2776,6 +2776,7 @@ static int MenuSettingsVideo()
 	sprintf(options.name[i++], "Video Mode");
 	sprintf(options.name[i++], "GB Mono Colorization");
 	sprintf(options.name[i++], "GB Palette");
+	sprintf(options.name[i++], "GBA Frameskip");
 	options.length = i;
 
 	for(i=0; i < options.length; i++)
@@ -2870,6 +2871,10 @@ static int MenuSettingsVideo()
 			case 6:
 				menu = MENU_GAMESETTINGS_PALETTE;
 				break;
+
+			case 7:
+				GCSettings.gbaFrameskip ^= 1;
+				break;
 		}
 
 		if(ret >= 0 || firstRun)
@@ -2921,6 +2926,11 @@ static int MenuSettingsVideo()
 				sprintf(options.value[6], "Custom");
 			else
 				sprintf(options.value[6], "Default");
+
+			if (GCSettings.gbaFrameskip)
+				sprintf (options.value[7], "On");
+			else
+				sprintf (options.value[7], "Off");
 
 			optionBrowser.TriggerUpdate();
 		}

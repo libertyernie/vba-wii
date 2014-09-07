@@ -191,6 +191,7 @@ preparePrefsData ()
 	createXMLSetting("xshift", "Horizontal Video Shift", toStr(GCSettings.xshift));
 	createXMLSetting("yshift", "Vertical Video Shift", toStr(GCSettings.yshift));
 	createXMLSetting("colorize", "Colorize Mono Gameboy", toStr(GCSettings.colorize));
+	createXMLSetting("gbaFrameskip", "GBA Frameskip", toStr(GCSettings.gbaFrameskip));
 
 	createXMLSection("Menu", "Menu Settings");
 
@@ -493,6 +494,7 @@ decodePrefsData ()
 			loadXMLSetting(&GCSettings.xshift, "xshift");
 			loadXMLSetting(&GCSettings.yshift, "yshift");
 			loadXMLSetting(&GCSettings.colorize, "colorize");
+			loadXMLSetting(&GCSettings.gbaFrameskip, "gbaFrameskip");
 
 			// Menu Settings
 
@@ -625,6 +627,7 @@ DefaultSettings ()
 	GCSettings.xshift = 0; // horizontal video shift
 	GCSettings.yshift = 0; // vertical video shift
 	GCSettings.colorize = 0; // Colorize mono gameboy games
+	GCSettings.gbaFrameskip = 1; // Turn auto-frameskip on for GBA games
 
 	GCSettings.WiimoteOrientation = 0;
 	GCSettings.ExitAction = 0;

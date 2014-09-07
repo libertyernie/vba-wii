@@ -77,6 +77,7 @@ struct SGCSettings{
 	int		xshift;		   // video output shift
 	int		yshift;
 	int     colorize;      // colorize Mono Gameboy games
+	int     gbaFrameskip;  // turn on auto-frameskip for GBA games
 	int		WiiControls;   // Match Wii Game
 	int		WiimoteOrientation;
 	int		ExitAction;

@@ -144,29 +144,36 @@ void system10Frames(int rate)
 
 	if (cartridgeType == 2) // GBA games require frameskipping
 	{
-		// consider increasing skip
-		if(speed < 60)
-			systemFrameSkip += 4;
-		else if(speed < 70)
-			systemFrameSkip += 3;
-		else if(speed < 80)
-			systemFrameSkip += 2;
-		else if(speed < 98)
-			++systemFrameSkip;
-
-		// consider decreasing skip
-		else if(speed > 185)
-			systemFrameSkip -= 3;
-		else if(speed > 145)
-			systemFrameSkip -= 2;
-		else if(speed > 125)
-			systemFrameSkip -= 1;
-
-		// correct invalid frame skip values
-		if(systemFrameSkip > 20)
-			systemFrameSkip = 20;
-		else if(systemFrameSkip < 0)
+		if (!GCSettings.gbaFrameskip)
+		{
 			systemFrameSkip = 0;
+		}
+		else
+		{
+			// consider increasing skip
+			if(speed < 60)
+				systemFrameSkip += 4;
+			else if(speed < 70)
+				systemFrameSkip += 3;
+			else if(speed < 80)
+				systemFrameSkip += 2;
+			else if(speed < 98)
+				++systemFrameSkip;
+
+			// consider decreasing skip
+			else if(speed > 185)
+				systemFrameSkip -= 3;
+			else if(speed > 145)
+				systemFrameSkip -= 2;
+			else if(speed > 125)
+				systemFrameSkip -= 1;
+
+			// correct invalid frame skip values
+			if(systemFrameSkip > 20)
+				systemFrameSkip = 20;
+			else if(systemFrameSkip < 0)
+				systemFrameSkip = 0;
+		}
 	}
 	lastTime = gettime();
 }
@@ -284,7 +291,6 @@ bool LoadBatteryOrState(char * filepath, int action, bool silent)
 			if (sh == NULL) {
 				ErrorPrompt(goomba_last_error());
 			} else {
-				InfoPrompt(stateheader_str(sh));
 				goomba_size_t outsize;
 				void* gbc_sram = goomba_extract(savebuffer, sh, &outsize);
 				if (gbc_sram == NULL) {
@@ -403,7 +409,6 @@ bool SaveBatteryOrState(char * filepath, int action, bool silent)
 			datasize = MemCPUWriteBatteryFile((char *)savebuffer);
 		
 		if (cartridgeType == 1) {
-			InfoPrompt("Goomba detected - will save");
 			// check for goomba sram format
 			char* old_sram = (char*)malloc(GOOMBA_COLOR_SRAM_SIZE);
 			size_t br = LoadFile(old_sram, filepath, GOOMBA_COLOR_SRAM_SIZE, true);
@@ -432,7 +437,6 @@ bool SaveBatteryOrState(char * filepath, int action, bool silent)
 				}
 			}
 			free(old_sram);
-			InfoPrompt("Saved.");
 		}
 	}
 	else
