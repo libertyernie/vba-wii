@@ -1,7 +1,7 @@
 ¸,ø¤°`°¤ø,¸¸,ø¤°`°¤ø,¸,ø¤°`°¤ø,¸¸,ø¤°`°¤ø,¸,ø¤°`°¤ø,¸¸,ø¤°`°¤ø,¸,ø¤°`°¤ø,¸¸,ø¤
  
-                            - Visual Boy Advance GX -
-                         http://code.google.com/p/vba-wii   
+                  - Visual Boy Advance GX (libertyernie fork) -
+                     https://github.com/libertyernie/vba-wii
                                (Under GPL License)
  
 ¸,ø¤°`°¤ø,¸¸,ø¤°`°¤ø,¸,ø¤°`°¤ø,¸¸,ø¤°`°¤ø,¸,ø¤°`°¤ø,¸¸,ø¤°`°¤ø,¸,ø¤°`°¤ø,¸¸,ø¤
@@ -18,14 +18,34 @@ With it you can play GBA/Game Boy Color/Game Boy games on your Wii/GameCube.
 * IPS/UPS patch support
 * Custom controller configurations
 * SD, USB, DVD, SMB, Zip, and 7z support
-* Compatibility based on VBA-M r927
+* Compatibility based on VBA-M r1231
 * MEM2 ROM Storage for fast access
-* Auto frame skip for those core heavy games
+* Auto frame skip (optional) for those core heavy games
+* Native support for Goomba / Goomba Color ROMs and SRAM
 * Turbo speed, video zooming, widescreen, and unfiltered video options
 
 ×—–­—–­—–­—–­ –­—–­—–­—–­—–­—–­—–­—–­—–­—–­— ­—–­—–­—–­—–­—–­—–­—–­—-­—–­-–•¬
 |0O×øo·                         UPDATE HISTORY                        ·oø×O0|
 `¨•¨¨¨¨¨ ¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨ ¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨ ¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨ ¨¨¨¨¨¨¨¨¨¨¨¨¨'
+
+[2.2.8~L1 - September 2014] - libertyernie
+
+* VBA-M core updated to r1231
+* Tiled rendering used for GBA games (new VBA-M feature, originally from
+  RetroArch) - provides a major speed boost!
+* Changes from cebolleto's version (bit.ly/1uqb6wW):
+  * Screenshots can be displayed for each game on the menu
+  * Nicer 7-Zip support
+  * When you leave a folder, the folder you just left will be selected
+* New options available:
+  * Disable the " Auto" string being appended to save files
+  * Disable frameskip entirely on GBA
+* Keyboard fixed (from libwiigui r56)
+* GUI prompt is now purple instead of green (button colors more intuitive)
+* Goomba and Goomba Color ROM support:
+  * Any Game Boy ROM stored within a Goomba ROM can be loaded "natively" in
+    the Game Boy (Color) emulator (or the Goomba ROM can be loaded as GBA)
+  * Game Boy SRAM stored within Goomba SRAM is loaded and saved correctly
 
 [2.2.8 - July 29, 2012]
 
@@ -508,9 +528,8 @@ Z = Gameboy A Button
 C = Gameboy B Button
 
 Classic Controller:
-Use the buttons as labelled.
-A = Gameboy A Button
-B = Gameboy B Button
+B = Gameboy A Button
+Y = Gameboy B Button
 R = Gameboy R Button
 L = Gameboy L Button
 
@@ -991,6 +1010,11 @@ right analog stick = fast forward
  
 -=[ Credits ]=-
 
+			Codebase update & Goomba	libertyernie
+			Menu screenshots			cebolleto
+			RetroArch tiled rendering	bgK
+			
+			¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨
 			Coding & menu design		Tantric
 			Additional coding			Carl Kenner, dancinninjac
 			Menu artwork				the3seashells
@@ -1008,7 +1032,7 @@ right analog stick = fast forward
  
 ¸,ø¤°`°¤ø,¸¸,ø¤°`°¤ø,¸,ø¤°`°¤ø,¸¸,ø¤°`°¤ø,¸,ø¤°`°¤ø,¸¸,ø¤°`°¤ø,¸,ø¤°`°¤ø,¸¸,ø¤
  
-                                  VBAGX Web Site
+                              Original VBAGX Web Site
                           http://code.google.com/p/vba-wii
  
 ¸,ø¤°`°¤ø,¸¸,ø¤°`°¤ø,¸,ø¤°`°¤ø,¸¸,ø¤°`°¤ø,¸,ø¤°`°¤ø,¸¸,ø¤°`°¤ø,¸,ø¤°`°¤ø,¸¸,ø¤
