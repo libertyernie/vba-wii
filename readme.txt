@@ -759,8 +759,11 @@ A = spin attack
 X/Y = shoot, run, hold on to things, yoshi's tongue, etc.
 ZL or sometimes L = crouch or lay egg. Press in the air to butt stomp.
 + = pause
-L/R sometimes look around
+L/R = look around (if the game supports it)
+ZR = fast forward (8-bit Game Boy only)
 
+In Super Mario World and Super Mario Land 2, you can use the A or R
+buttons for a spin jump.
 
 -=[ Yoshi's Universal Gravitation (Topsy Turvy), Match Wii Controls ]=-
 
