@@ -28,7 +28,7 @@ With it you can play GBA/Game Boy Color/Game Boy games on your Wii/GameCube.
 |0Oื๘oท                         UPDATE HISTORY                        ทo๘ืO0|
 `จ•จจจจจ จจจจจจจจจจจจจจจจ จจจจจจจจจจจจจจจ จจจจจจจจจจจจจจจจจจจจ จจจจจจจจจจจจจ'
 
-[2.2.8~L1 - September 2014] - libertyernie
+[2.3.0 - September 2014] - libertyernie
 
 * VBA-M core updated to r1231
 * Tiled rendering used for GBA games (new VBA-M feature, originally from
