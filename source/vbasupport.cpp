@@ -282,6 +282,7 @@ bool LoadBatteryOrState(char * filepath, int action, bool silent)
 		void* cleaned = goomba_cleanup(savebuffer);
 		if (savebuffer == NULL) {
 			ErrorPrompt(goomba_last_error());
+			offset = 0;
 		} else {
 			if (cleaned != savebuffer) {
 				memcpy(savebuffer, cleaned, GOOMBA_COLOR_SRAM_SIZE);
@@ -290,11 +291,13 @@ bool LoadBatteryOrState(char * filepath, int action, bool silent)
 			stateheader* sh = stateheader_for(savebuffer, RomTitle);
 			if (sh == NULL) {
 				ErrorPrompt(goomba_last_error());
+				offset = 0;
 			} else {
 				goomba_size_t outsize;
 				void* gbc_sram = goomba_extract(savebuffer, sh, &outsize);
 				if (gbc_sram == NULL) {
 					ErrorPrompt(goomba_last_error());
+					offset = 0;
 				} else {
 					memcpy(savebuffer, gbc_sram, outsize);
 					offset = outsize;
@@ -409,13 +412,15 @@ bool SaveBatteryOrState(char * filepath, int action, bool silent)
 			datasize = MemCPUWriteBatteryFile((char *)savebuffer);
 		
 		if (cartridgeType == 1) {
+			const char* generic_goomba_error = "Cannot save SRAM in Goomba format (did not load correctly.)";
 			// check for goomba sram format
 			char* old_sram = (char*)malloc(GOOMBA_COLOR_SRAM_SIZE);
 			size_t br = LoadFile(old_sram, filepath, GOOMBA_COLOR_SRAM_SIZE, true);
 			if (br >= GOOMBA_COLOR_SRAM_SIZE && goomba_is_sram(old_sram)) {
 				void* cleaned = goomba_cleanup(old_sram);
 				if (cleaned == NULL) {
-					ErrorPrompt(goomba_last_error());
+					ErrorPrompt(generic_goomba_error);
+					datasize = 0;
 				} else {
 					if (cleaned != old_sram) {
 						free(old_sram);
@@ -423,11 +428,13 @@ bool SaveBatteryOrState(char * filepath, int action, bool silent)
 					}
 					stateheader* sh = stateheader_for(old_sram, RomTitle);
 					if (sh == NULL) {
-						ErrorPrompt(goomba_last_error());
+						ErrorPrompt(generic_goomba_error);
+						datasize = 0;
 					} else {
 						void* new_sram = goomba_new_sav(old_sram, sh, savebuffer, datasize);
 						if (new_sram == NULL) {
 							ErrorPrompt(goomba_last_error());
+							datasize = 0;
 						} else {
 							memcpy(savebuffer, new_sram, GOOMBA_COLOR_SRAM_SIZE);
 							datasize = GOOMBA_COLOR_SRAM_SIZE;
@@ -957,6 +964,7 @@ bool utilIsZipFile(const char* file)
             return true;
         }
 	}
+	return false;
 }
 
 bool LoadVBAROM()
