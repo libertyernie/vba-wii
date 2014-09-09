@@ -1015,7 +1015,7 @@ right analog stick = fast forward
 
 			Codebase update & Goomba	libertyernie
 			Menu screenshots			cebolleto
-			RetroArch tiled rendering	bgK
+			GBA tiled rendering			bgK (for RetroArch)
 			
 			ииииииииииииииииииииииииииииииииииииииииииииии
 			Coding & menu design		Tantric

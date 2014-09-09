@@ -777,6 +777,19 @@ static void WindowCredits(void * ptr)
 	txt[i]->SetPresets(20, (GXColor){0, 0, 0, 255}, 0,
 			FTGX_JUSTIFY_LEFT | FTGX_ALIGN_TOP, ALIGN_LEFT, ALIGN_TOP);
 
+	txt[i] = new GuiText("Codebase update & Goomba support");
+	txt[i]->SetPosition(40,y); i++;
+	txt[i] = new GuiText("libertyernie");
+	txt[i]->SetPosition(335,y); i++; y+=24;
+	txt[i] = new GuiText("Menu screenshot support");
+	txt[i]->SetPosition(40,y); i++;
+	txt[i] = new GuiText("cebolleto");
+	txt[i]->SetPosition(335,y); i++; y+=24;
+	txt[i] = new GuiText("GBA tiled rendering");
+	txt[i]->SetPosition(40,y); i++;
+	txt[i] = new GuiText("bgK (for RetroArch)");
+	txt[i]->SetPosition(335,y); i++; y+=24;
+
 	txt[i] = new GuiText("Coding & menu design");
 	txt[i]->SetPosition(40,y); i++;
 	txt[i] = new GuiText("Tantric");
