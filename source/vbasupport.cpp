@@ -783,6 +783,8 @@ static void gbApplyPerImagePreferences()
 			RomIdCode = SWEP5;
 		else if (strcmp(RomTitle, "SRJ DMG") == 0)
 			RomIdCode = SWEP6;
+		else if (strcmp(RomTitle, "KID DRACULA") == 0)
+			RomIdCode = KIDDRACULA;
 	}
 	// look for matching palettes if a monochrome gameboy game
 	// (or if a Super Gameboy game, but the palette will be ignored later in that case)
