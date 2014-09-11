@@ -28,7 +28,7 @@ With it you can play GBA/Game Boy Color/Game Boy games on your Wii/GameCube.
 |0O×øo·                         UPDATE HISTORY                        ·oø×O0|
 `¨•¨¨¨¨¨ ¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨ ¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨ ¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨ ¨¨¨¨¨¨¨¨¨¨¨¨¨'
 
-[2.3.0 - September 2014] - libertyernie
+[2.3.0 - September 10, 2014] - libertyernie
 
 * VBA-M core updated to r1231
 * Tiled rendering used for GBA games (new VBA-M feature, originally from
@@ -1008,6 +1008,43 @@ L Trigger = dash (double click and hold)
 Z = grab
 right analog stick = fast forward
 1 = select (maybe does nothing)
+
+-=[ Kid Dracula, Match Wii Controls ]=-
+
+Turn "Match Wii Controls" ON to use these controls.
+
+There's no Kid Dracula game for the Wii, but this is a good opportunity to
+show off some fancy memory-swapping tricks. -libertyernie
+
+The Kid Dracula Wii controls (remote + nunchuk) are:
+====================================================
+
+A = jump
+B = use selected weapon
+Z = use NOR weapon (fireball)
+C = use BAT weapon (turn into bat for 5 sec)
++ = pause
+- = switch item
+1/2 = fast forward
+
+The Kid Dracula Classic Controller controls are:
+================================================
+
+A/B = jump
+Y = use selected weapon
+X = use NOR weapon (fireball)
+R/ZR = use BAT weapon (turn into bat for 5 sec)
++ = pause
+- = switch item
+1/2 = fast forward
+
+In Kid Dracula, pressing the "fire" button will always shoot a small fireball,
+but holding the button for a second or so to charge up the shoot lets you use
+whichever item is selected.
+
+Pressing B (nunchuk) or Y (classic) will switch back to whatever item was
+selected before you pressed Z/C (nunchuk) or X/R/ZR (classic), unless you have
+switched items since then.
 
 ¸,ø¤°`°¤ø,¸¸,ø¤°`°¤ø,¸,ø¤°`°¤ø,¸¸,ø¤°`°¤ø,¸,ø¤°`°¤ø,¸¸,ø¤°`°¤ø,¸,ø¤°`°¤ø,¸¸,ø¤
  

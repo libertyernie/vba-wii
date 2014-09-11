@@ -765,19 +765,19 @@ static void WindowCredits(void * ptr)
 	creditsBoxImg.SetAlignment(ALIGN_CENTRE, ALIGN_MIDDLE);
 	creditsWindowBox.Append(&creditsBoxImg);
 
-	int numEntries = 24;
+	int numEntries = 30;
 	GuiText * txt[numEntries];
 
-	txt[i] = new GuiText("Credits", 30, (GXColor){0, 0, 0, 255});
-	txt[i]->SetAlignment(ALIGN_CENTRE, ALIGN_TOP); txt[i]->SetPosition(0,y); i++; y+=32;
+	txt[i] = new GuiText("Credits", 20, (GXColor){0, 0, 0, 255});
+	txt[i]->SetAlignment(ALIGN_CENTRE, ALIGN_TOP); txt[i]->SetPosition(0,y); i++; y+=24;
 
 	txt[i] = new GuiText("Official Site: http://code.google.com/p/vba-wii/", 20, (GXColor){0, 0, 0, 255});
-	txt[i]->SetAlignment(ALIGN_CENTRE, ALIGN_TOP); txt[i]->SetPosition(0,y); i++; y+=40;
+	txt[i]->SetAlignment(ALIGN_CENTRE, ALIGN_TOP); txt[i]->SetPosition(0,y); i++; y+=32;
 
 	txt[i]->SetPresets(20, (GXColor){0, 0, 0, 255}, 0,
 			FTGX_JUSTIFY_LEFT | FTGX_ALIGN_TOP, ALIGN_LEFT, ALIGN_TOP);
 
-	txt[i] = new GuiText("Codebase update & Goomba support");
+	txt[i] = new GuiText("Code update & Goomba support");
 	txt[i]->SetPosition(40,y); i++;
 	txt[i] = new GuiText("libertyernie");
 	txt[i]->SetPosition(335,y); i++; y+=24;
@@ -788,7 +788,7 @@ static void WindowCredits(void * ptr)
 	txt[i] = new GuiText("GBA tiled rendering");
 	txt[i]->SetPosition(40,y); i++;
 	txt[i] = new GuiText("bgK (for RetroArch)");
-	txt[i]->SetPosition(335,y); i++; y+=24;
+	txt[i]->SetPosition(335,y); i++; y+=32;
 
 	txt[i] = new GuiText("Coding & menu design");
 	txt[i]->SetPosition(40,y); i++;
@@ -805,7 +805,7 @@ static void WindowCredits(void * ptr)
 	txt[i] = new GuiText("Menu sound");
 	txt[i]->SetPosition(40,y); i++;
 	txt[i] = new GuiText("Peter de Man");
-	txt[i]->SetPosition(335,y); i++; y+=48;
+	txt[i]->SetPosition(335,y); i++; y+=32;
 
 	txt[i] = new GuiText("VBA GameCube");
 	txt[i]->SetPosition(40,y); i++;
@@ -827,7 +827,7 @@ static void WindowCredits(void * ptr)
 	txt[i] = new GuiText("FreeTypeGX");
 	txt[i]->SetPosition(40,y); i++;
 	txt[i] = new GuiText("Armin Tamzarian");
-	txt[i]->SetPosition(335,y); i++; y+=48;
+	txt[i]->SetPosition(335,y); i++; y+=32;
 
 	txt[i]->SetPresets(18, (GXColor){0, 0, 0, 255}, 0,
 		FTGX_JUSTIFY_CENTER | FTGX_ALIGN_TOP, ALIGN_CENTRE, ALIGN_TOP);
