@@ -1599,14 +1599,15 @@ u32 KidDraculaInput(unsigned short pad) {
 		ShootButton = wp->btns_h & WPAD_BUTTON_B;
 		PauseButton = wp->btns_h & WPAD_BUTTON_PLUS;
 		SelectButton = wp->btns_h & WPAD_BUTTON_MINUS;
-		SpeedButton = wp->btns_h & WPAD_NUNCHUK_BUTTON_C;
+		SpeedButton = wp->btns_h & WPAD_BUTTON_1 || wp->btns_h & WPAD_BUTTON_2;
 		NorButton = wp->btns_h & WPAD_NUNCHUK_BUTTON_Z;
+		BatButton = wp->btns_h & WPAD_NUNCHUK_BUTTON_C;
 	} else if (wp->exp.type == WPAD_EXP_CLASSIC) {
 		JumpButton = wp->btns_h & (WPAD_CLASSIC_BUTTON_B | WPAD_CLASSIC_BUTTON_A);
 		ShootButton = wp->btns_h & WPAD_CLASSIC_BUTTON_Y;
 		PauseButton = wp->btns_h & WPAD_CLASSIC_BUTTON_PLUS;
 		SelectButton = wp->btns_h & WPAD_CLASSIC_BUTTON_MINUS;
-		SpeedButton = wp->btns_h & WPAD_CLASSIC_BUTTON_ZL;
+		SpeedButton = wp->btns_h & (WPAD_CLASSIC_BUTTON_ZL | WPAD_CLASSIC_BUTTON_FULL_L);
 		NorButton = wp->btns_h & WPAD_CLASSIC_BUTTON_X;
 		BatButton = wp->btns_h & (WPAD_CLASSIC_BUTTON_ZR | WPAD_CLASSIC_BUTTON_FULL_R);
 	}
