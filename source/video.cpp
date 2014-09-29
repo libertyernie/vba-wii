@@ -487,18 +487,17 @@ static inline void UpdateScaling()
 		zoomHor = GCSettings.gbZoomHor;
 		zoomVert = GCSettings.gbZoomVert;
 	}
-	int nheight = vheight + 1;
 	if (zoomHor >= 1.05f) {     // GBA  GBC
 		xscale = vwidth * 1.5;  // 720  480
-		yscale = nheight * 1.5; // 480  432
+		yscale = vheight * 1.5; // 480  432
 		if (zoomHor == 1.06f) xscale *= 0.75f;
 	} else if (zoomHor >= 1.03f) {
 		xscale = vwidth;        // 480  320
-		yscale = nheight;       // 320  288
+		yscale = vheight;       // 320  288
 		if (zoomHor == 1.04f) xscale *= 0.75f;
 	} else if (zoomHor >= 1.01f) {
 		xscale = vwidth / 2;    // 240  160
-		yscale = nheight / 2;   // 160  144
+		yscale = vheight / 2;   // 160  144
 		if (zoomHor == 1.02f) xscale *= 0.75f;
 	} else {
 		xscale *= zoomHor;

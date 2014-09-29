@@ -4381,7 +4381,7 @@ void gbDrawLine()
     case 16:
     {
       u16 * dest = (u16 *)pix +
-                   (gbBorderLineSkip+2) * (register_LY + gbBorderRowSkip+1)
+                   (gbBorderLineSkip+2) * (register_LY + gbBorderRowSkip)
                    + gbBorderColumnSkip;
       for(int x = 0; x < 160; ) {
         *dest++ = systemColorMap16[gbLineMix[x++]];
@@ -4458,7 +4458,7 @@ void gbDrawLine()
     case 32:
     {
       u32 * dest = (u32 *)pix +
-                   (gbBorderLineSkip+1) * (register_LY + gbBorderRowSkip+1)
+                   (gbBorderLineSkip+1) * (register_LY + gbBorderRowSkip)
                    + gbBorderColumnSkip;
       for(int x = 0; x < 160;) {
         *dest++ = systemColorMap32[gbLineMix[x++]];
