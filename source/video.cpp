@@ -476,15 +476,32 @@ static inline void UpdateScaling()
 	}
 
 	// change zoom
+	float zoomHor, zoomVert;
 	if (vwidth == 240) // GBA
 	{
-		xscale *= GCSettings.gbaZoomHor;
-		yscale *= GCSettings.gbaZoomVert;
+		zoomHor = GCSettings.gbaZoomHor;
+		zoomVert = GCSettings.gbaZoomVert;
 	}
 	else
 	{
-		xscale *= GCSettings.gbZoomHor;
-		yscale *= GCSettings.gbZoomVert;
+		zoomHor = GCSettings.gbZoomHor;
+		zoomVert = GCSettings.gbZoomVert;
+	}
+	if (zoomHor >= 1.05f) {     // GBA  GBC
+		xscale = vwidth * 1.5;  // 720  480
+		yscale = vheight * 1.5; // 480  432
+		if (zoomHor == 1.06f) xscale *= 0.75f;
+	} else if (zoomHor >= 1.03f) {
+		xscale = vwidth;        // 480  320
+		yscale = vheight;       // 320  288
+		if (zoomHor == 1.04f) xscale *= 0.75f;
+	} else if (zoomHor >= 1.01f) {
+		xscale = vwidth / 2;    // 240  160
+		yscale = vheight / 2;   // 160  144
+		if (zoomHor == 1.02f) xscale *= 0.75f;
+	} else {
+		xscale *= zoomHor;
+		yscale *= zoomVert;
 	}
 
 	// Set new aspect
