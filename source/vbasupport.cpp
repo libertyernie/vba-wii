@@ -1045,7 +1045,7 @@ bool LoadVBAROM()
 	if (cartridgeType == 1)
 	{
 		emulator = GBSystem;
-		gbBorderOn = 0; // GB borders always off
+		gbBorderOn = 1; // GB borders always off
 
 		if(gbBorderOn)
 		{
@@ -1064,8 +1064,8 @@ bool LoadVBAROM()
 			gbBorderRowSkip = 0;
 		}
 
+		srcPitch = srcWidth * 2 + 4;
 		loaded = LoadGBROM();
-		srcPitch = 324;
 		soundSetSampleRate(44100);
 	}
 
