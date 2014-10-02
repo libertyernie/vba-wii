@@ -2781,10 +2781,13 @@ static int MenuSettingsVideo()
 
 	sprintf(options.name[i++], "Rendering");
 	sprintf(options.name[i++], "Scaling");
-	if(IsGBAGame())
+	if(IsGBAGame()) {
 		sprintf(options.name[i++], "GBA Screen Zoom");
-	else
+		sprintf(options.name[i++], "GBA Fixed Pixel Ratio");
+	} else {
 		sprintf(options.name[i++], "GB Screen Zoom");
+		sprintf(options.name[i++], "GB Fixed Pixel Ratio");
+	}
 	sprintf(options.name[i++], "Screen Position");
 	sprintf(options.name[i++], "Video Mode");
 	sprintf(options.name[i++], "GB Mono Colorization");
@@ -2796,10 +2799,10 @@ static int MenuSettingsVideo()
 		options.value[i][0] = 0;
 	
 	if(IsGBAGame())
-		options.name[5][0] = 0;
+		options.name[6][0] = 0;
 
 	if(!IsGameboyGame())
-		options.name[6][0] = 0; // disable palette option for GBA/GBC
+		options.name[7][0] = 0; // disable palette option for GBA/GBC
 
 	GuiText titleTxt("Game Settings - Video", 26, (GXColor){255, 255, 255, 255});
 	titleTxt.SetAlignment(ALIGN_LEFT, ALIGN_TOP);
@@ -2872,20 +2875,32 @@ static int MenuSettingsVideo()
 				break;
 
 			case 4:
+				if(IsGBAGame()) {
+					GCSettings.gbaFixed++;
+					if(GCSettings.gbaFixed > 3)
+						GCSettings.gbaFixed = 0;
+				} else {
+					GCSettings.gbFixed++;
+					if(GCSettings.gbFixed > 4)
+						GCSettings.gbFixed = 0;
+				}
+				break;
+
+			case 5:
 				GCSettings.videomode++;
 				if(GCSettings.videomode > 4)
 					GCSettings.videomode = 0;
 				break;
 
-			case 5:
+			case 6:
 				GCSettings.colorize ^= 1;
 				break;
 
-			case 6:
+			case 7:
 				menu = MENU_GAMESETTINGS_PALETTE;
 				break;
 
-			case 7:
+			case 8:
 				GCSettings.gbaFrameskip ^= 1;
 				break;
 		}
@@ -2910,40 +2925,49 @@ static int MenuSettingsVideo()
 			else if (GCSettings.scaling == 3)
 				sprintf (options.value[1], "16:9 Correction");
 
-			if(IsGBAGame())
+			if(IsGBAGame()) {
 				sprintf (options.value[2], "%.2f%%, %.2f%%", GCSettings.gbaZoomHor*100, GCSettings.gbaZoomVert*100);
-			else
+				if (GCSettings.gbaFixed)
+					sprintf (options.value[3], "%dx", GCSettings.gbaFixed);
+				else
+					sprintf (options.value[3], "Disabled");
+			} else {
 				sprintf (options.value[2], "%.2f%%, %.2f%%", GCSettings.gbZoomHor*100, GCSettings.gbZoomVert*100);
-			sprintf (options.value[3], "%d, %d", GCSettings.xshift, GCSettings.yshift);
+				if (GCSettings.gbFixed)
+					sprintf (options.value[3], "%dx", GCSettings.gbFixed);
+				else
+					sprintf (options.value[3], "Disabled");
+			}
+			sprintf (options.value[4], "%d, %d", GCSettings.xshift, GCSettings.yshift);
 
 			switch(GCSettings.videomode)
 			{
 				case 0:
-					sprintf (options.value[4], "Automatic (Recommended)"); break;
+					sprintf (options.value[5], "Automatic (Recommended)"); break;
 				case 1:
-					sprintf (options.value[4], "NTSC (480i)"); break;
+					sprintf (options.value[5], "NTSC (480i)"); break;
 				case 2:
-					sprintf (options.value[4], "Progressive (480p)"); break;
+					sprintf (options.value[5], "Progressive (480p)"); break;
 				case 3:
-					sprintf (options.value[4], "PAL (50Hz)"); break;
+					sprintf (options.value[5], "PAL (50Hz)"); break;
 				case 4:
-					sprintf (options.value[4], "PAL (60Hz)"); break;
+					sprintf (options.value[5], "PAL (60Hz)"); break;
 			}
 
 			if (GCSettings.colorize)
-				sprintf (options.value[5], "On");
+				sprintf (options.value[6], "On");
 			else
-				sprintf (options.value[5], "Off");
+				sprintf (options.value[6], "Off");
 
 			if(strcmp(CurrentPalette.gameName, "default"))
-				sprintf(options.value[6], "Custom");
+				sprintf(options.value[7], "Custom");
 			else
-				sprintf(options.value[6], "Default");
+				sprintf(options.value[7], "Default");
 
 			if (GCSettings.gbaFrameskip)
-				sprintf (options.value[7], "On");
+				sprintf (options.value[8], "On");
 			else
-				sprintf (options.value[7], "Off");
+				sprintf (options.value[8], "Off");
 
 			optionBrowser.TriggerUpdate();
 		}

@@ -16,7 +16,7 @@
 #include "utils/FreeTypeGX.h"
 
 #define APPNAME 		"Visual Boy Advance GX"
-#define APPVERSION 		"2.3.0"
+#define APPVERSION 		"2.3.1"
 #define APPFOLDER 		"vbagx"
 #define PREF_FILE_NAME 	"settings.xml"
 #define PAL_FILE_NAME 	"palettes.xml"
@@ -66,6 +66,8 @@ struct SGCSettings{
     float	gbaZoomVert;   // GBA vertical zoom amount
     float	gbZoomHor;     // GB horizontal zoom amount
     float	gbZoomVert;    // GB vertical zoom amount
+	int     gbFixed;
+	int     gbaFixed;
 	int		AutoLoad;
     int		AutoSave;
     int		LoadMethod;    // For ROMS: Auto, SD, DVD, USB, Network (SMB)

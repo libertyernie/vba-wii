@@ -186,6 +186,8 @@ preparePrefsData ()
 	createXMLSetting("gbaZoomVert", "GBA Vertical Zoom Level", FtoStr(GCSettings.gbaZoomVert));
 	createXMLSetting("gbZoomHor", "GB Horizontal Zoom Level", FtoStr(GCSettings.gbZoomHor));
 	createXMLSetting("gbZoomVert", "GB Vertical Zoom Level", FtoStr(GCSettings.gbZoomVert));
+	createXMLSetting("gbFixed", "GB Fixed Pixel Ratio", toStr(GCSettings.gbFixed));
+	createXMLSetting("gbaFixed", "GBA Fixed Pixel Ratio", toStr(GCSettings.gbaFixed));
 	createXMLSetting("render", "Video Filtering", toStr(GCSettings.render));
 	createXMLSetting("scaling", "Aspect Ratio Correction", toStr(GCSettings.scaling));
 	createXMLSetting("xshift", "Horizontal Video Shift", toStr(GCSettings.xshift));
@@ -489,6 +491,8 @@ decodePrefsData ()
 			loadXMLSetting(&GCSettings.gbaZoomVert, "gbaZoomVert");
 			loadXMLSetting(&GCSettings.gbZoomHor, "gbZoomHor");
 			loadXMLSetting(&GCSettings.gbZoomVert, "gbZoomVert");
+			loadXMLSetting(&GCSettings.gbaFixed, "gbaFixed");
+			loadXMLSetting(&GCSettings.gbFixed, "gbFixed");
 			loadXMLSetting(&GCSettings.render, "render");
 			loadXMLSetting(&GCSettings.scaling, "scaling");
 			loadXMLSetting(&GCSettings.xshift, "xshift");
@@ -619,6 +623,8 @@ DefaultSettings ()
 	GCSettings.gbaZoomVert = 1.0; // GBA vertical zoom level
 	GCSettings.gbZoomHor = 1.0; // GBA horizontal zoom level
 	GCSettings.gbZoomVert = 1.0; // GBA vertical zoom level
+	GCSettings.gbFixed = 0; // not fixed - use zoom level
+	GCSettings.gbaFixed = 0; // not fixed - use zoom level
 	GCSettings.videomode = 0; // automatic video mode detection
 	GCSettings.render = 1; // Filtered
 	GCSettings.scaling = 1; // partial stretch
