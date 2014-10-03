@@ -5473,6 +5473,21 @@ struct EmulatedSystem GBSystem = {
  * doing it memory-based
  * Tantric - October 2008
  ***************************************************************************/
+ 
+void swap_endian_32(void* ptr, int length) {
+	u8* byteptr = (u8*)ptr;
+	u8 b1, b2, b3, b4;
+	for (int i=0; i<length; i+=4) {
+		b1 = byteptr[i+0];
+		b2 = byteptr[i+1];
+		b3 = byteptr[i+2];
+		b4 = byteptr[i+3];
+		byteptr[i+0] = b4;
+		byteptr[i+1] = b3;
+		byteptr[i+2] = b2;
+		byteptr[i+3] = b1;
+	}
+}
 
 int MemgbWriteSaveMBC1(char * membuffer) {
 	if (gbRam) {
@@ -5502,6 +5517,7 @@ int MemgbWriteSaveMBC3(char * membuffer, bool extendedSave) {
 		{
 			memcpy(membuffer+offset, &gbDataMBC3.mapperSeconds, (10 * sizeof(int)
 					+ sizeof(time_t)));
+			swap_endian_32(membuffer+offset, sizeof(int) * 10 + sizeof(time_t));
 			offset += (10 * sizeof(int)	+ sizeof(time_t));
 		}
 	}
@@ -5539,6 +5555,7 @@ int MemgbWriteSaveTAMA5(char * membuffer, bool extendedSave) {
 	if (extendedSave)
 	{
 		memcpy(membuffer+offset, &gbDataTAMA5.mapperSeconds, (14 * sizeof(int) + sizeof(time_t)));
+		swap_endian_32(membuffer+offset, sizeof(int) * 14 + sizeof(time_t));
 		offset += (14 * sizeof(int) + sizeof(time_t));
 	}
 	return offset;
@@ -5594,6 +5611,13 @@ bool MemgbReadSaveMBC3(char * membuffer, int read) {
 		if((uint)read < (offset + sizeof(int) * 10 + sizeof(time_t)))
 			return false;
 		memcpy(&gbDataMBC3.mapperSeconds, membuffer+offset, sizeof(int) * 10 + sizeof(time_t));
+		
+		swap_endian_32(&gbDataMBC3.mapperSeconds, sizeof(int) * 10 + sizeof(time_t));
+		
+		// Fix invalid time values
+		//gbDataMBC3.mapperSeconds %= 60;
+		//gbDataMBC3.mapperMinutes %= 60;
+		//gbDataMBC3.mapperHours %= 24;
 	}
 	return true;
 }
@@ -5631,6 +5655,14 @@ bool MemgbReadSaveTAMA5(char * membuffer, int read) {
 		memcpy(gbRam, membuffer, (gbRamSizeMask + 1));
 		int offset = (gbRamSizeMask + 1);
 		memcpy(&gbDataTAMA5.mapperSeconds, membuffer+offset, sizeof(int) * 14 + sizeof(time_t));
+		
+		swap_endian_32(&gbDataTAMA5.mapperSeconds, sizeof(int) * 14 + sizeof(time_t));
+		
+		// Fix invalid time values (not tested)
+		//gbDataTAMA5.mapperSeconds %= 60;
+		//gbDataTAMA5.mapperMinutes %= 60;
+		//gbDataTAMA5.mapperHours %= 24;
+		
 		return true;
 	}
 	return false;
