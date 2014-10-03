@@ -2871,10 +2871,6 @@ static int MenuSettingsVideo()
 				break;
 
 			case 3:
-				ScreenPositionWindow();
-				break;
-
-			case 4:
 				if(IsGBAGame()) {
 					GCSettings.gbaFixed++;
 					if(GCSettings.gbaFixed > 3)
@@ -2884,6 +2880,10 @@ static int MenuSettingsVideo()
 					if(GCSettings.gbFixed > 4)
 						GCSettings.gbFixed = 0;
 				}
+				break;
+
+			case 4:
+				ScreenPositionWindow();
 				break;
 
 			case 5:
