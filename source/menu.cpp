@@ -2968,6 +2968,7 @@ static int MenuSettingsEmulation()
 
 	sprintf(options.name[i++], "Hardware");
 	sprintf(options.name[i++], "Offset from UTC (hours)");
+	sprintf(options.name[i++], "Super Game Boy border");
 	options.length = i;
 
 	for(i=0; i < options.length; i++)
@@ -3030,6 +3031,10 @@ static int MenuSettingsEmulation()
 					GCSettings.OffsetMinutesUTC = -60*12;
 				}
 				break;
+			
+			case 2:
+				GCSettings.SGBBorder ^= 1;
+				break;
 		}
 
 		if(ret >= 0 || firstRun)
@@ -3044,6 +3049,8 @@ static int MenuSettingsEmulation()
 				sprintf (options.value[0], "GBC");
 			
 			sprintf (options.value[1], "%+.2f", GCSettings.OffsetMinutesUTC / 60.0);
+			
+			sprintf (options.value[2], GCSettings.SGBBorder ? "On" : "Off");
 
 			optionBrowser.TriggerUpdate();
 		}

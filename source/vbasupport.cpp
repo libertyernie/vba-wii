@@ -1045,7 +1045,7 @@ bool LoadVBAROM()
 	if (cartridgeType == 1)
 	{
 		emulator = GBSystem;
-		gbBorderOn = 0; // GB borders always off
+		gbBorderOn = GCSettings.SGBBorder;
 
 		if(gbBorderOn)
 		{
@@ -1065,7 +1065,7 @@ bool LoadVBAROM()
 		}
 
 		loaded = LoadGBROM();
-		srcPitch = 324;
+		srcPitch = srcWidth * 2 + 4;
 		soundSetSampleRate(44100);
 	}
 
