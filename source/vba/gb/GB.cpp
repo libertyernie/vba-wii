@@ -2144,7 +2144,7 @@ void gbGetHardwareType()
 {
   gbCgbMode = 0;
   gbSgbMode = 0;
-  if(gbRom[0x143] & 0x80 && GCSettings.PreferHardware != 0) {
+  if(gbRom[0x143] & 0x80) {
     if((gbEmulatorType == 0) ||
        gbEmulatorType == 1 ||
        gbEmulatorType == 4) {
@@ -2158,6 +2158,11 @@ void gbGetHardwareType()
        gbEmulatorType == 5)
       gbSgbMode = 1;
 	  gbCgbMode = 0;
+  }
+  
+  if (GCSettings.PreferHardware == 0) {
+    gbSgbMode = 0;
+	gbCgbMode = 0;
   }
 
   gbHardware = 1; // GB

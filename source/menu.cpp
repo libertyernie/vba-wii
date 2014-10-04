@@ -2990,6 +2990,7 @@ static int MenuSettingsEmulation()
 
 	sprintf(options.name[i++], "Hardware");
 	sprintf(options.name[i++], "Offset from UTC (hours)");
+	options.length = i;
 
 	for(i=0; i < options.length; i++)
 		options.value[i][0] = 0;
