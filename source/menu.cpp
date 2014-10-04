@@ -1971,7 +1971,7 @@ static int MenuGameSettings()
 	w.Append(&mappingBtn);
 	w.Append(&videoBtn);
 	w.Append(&wiiControlsBtn);
-	//w.Append(&cheatsBtn);
+	w.Append(&emulationBtn);
 	w.Append(&closeBtn);
 	w.Append(&backBtn);
 
