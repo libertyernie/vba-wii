@@ -1847,7 +1847,7 @@ static int MenuGameSettings()
 #else
 	GuiImageData iconWiiControls(icon_settings_gamecube_png);
 #endif
-	//GuiImageData iconCheats(icon_game_cheats_png);
+	GuiImageData iconEmulation(icon_game_settings_png);
 	GuiImageData btnCloseOutline(button_small_png);
 	GuiImageData btnCloseOutlineOver(button_small_over_png);
 
@@ -1906,7 +1906,7 @@ static int MenuGameSettings()
 	GuiImage wiiControlsBtnIcon(&iconWiiControls);
 	GuiButton wiiControlsBtn(btnLargeOutline.GetWidth(), btnLargeOutline.GetHeight());
 	wiiControlsBtn.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
-	wiiControlsBtn.SetPosition(0, 250);
+	wiiControlsBtn.SetPosition(-125, 250);
 	wiiControlsBtn.SetLabel(&wiiControlsBtnTxt1, 0);
 	wiiControlsBtn.SetLabel(&wiiControlsBtnTxt2, 1);
 	wiiControlsBtn.SetImage(&wiiControlsBtnImg);
@@ -1918,21 +1918,21 @@ static int MenuGameSettings()
 	wiiControlsBtn.SetTrigger(trig2);
 	wiiControlsBtn.SetEffectGrow();
 
-	/*GuiText cheatsBtnTxt("Cheats", 22, (GXColor){0, 0, 0, 255});
-	GuiImage cheatsBtnImg(&btnLargeOutline);
-	GuiImage cheatsBtnImgOver(&btnLargeOutlineOver);
-	GuiImage cheatsBtnIcon(&iconCheats);
-	GuiButton cheatsBtn(btnLargeOutline.GetWidth(), btnLargeOutline.GetHeight());
-	cheatsBtn.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
-	cheatsBtn.SetPosition(125, 250);
-	cheatsBtn.SetLabel(&cheatsBtnTxt);
-	cheatsBtn.SetImage(&cheatsBtnImg);
-	cheatsBtn.SetImageOver(&cheatsBtnImgOver);
-	cheatsBtn.SetIcon(&cheatsBtnIcon);
-	cheatsBtn.SetSoundOver(&btnSoundOver);
-	cheatsBtn.SetSoundClick(&btnSoundClick);
-	cheatsBtn.SetTrigger(trigA);
-	cheatsBtn.SetEffectGrow();*/
+	GuiText emulationBtnTxt("Emulation", 22, (GXColor){0, 0, 0, 255});
+	GuiImage emulationBtnImg(&btnLargeOutline);
+	GuiImage emulationBtnImgOver(&btnLargeOutlineOver);
+	GuiImage emulationBtnIcon(&iconEmulation);
+	GuiButton emulationBtn(btnLargeOutline.GetWidth(), btnLargeOutline.GetHeight());
+	emulationBtn.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
+	emulationBtn.SetPosition(125, 250);
+	emulationBtn.SetLabel(&emulationBtnTxt);
+	emulationBtn.SetImage(&emulationBtnImg);
+	emulationBtn.SetImageOver(&emulationBtnImgOver);
+	emulationBtn.SetIcon(&emulationBtnIcon);
+	emulationBtn.SetSoundOver(&btnSoundOver);
+	emulationBtn.SetSoundClick(&btnSoundClick);
+	emulationBtn.SetTrigger(trigA);
+	emulationBtn.SetEffectGrow();
 
 	GuiText closeBtnTxt("Close", 20, (GXColor){0, 0, 0, 255});
 	GuiImage closeBtnImg(&btnCloseOutline);
@@ -1999,14 +1999,10 @@ static int MenuGameSettings()
 			wiiControlsBtnTxt2.SetText(s);
 			wiiControlsBtn.ResetState();
 		}
-		/*else if(cheatsBtn.GetState() == STATE_CLICKED)
+		else if(emulationBtn.GetState() == STATE_CLICKED)
 		{
-			cheatsBtn.ResetState();
-			if(Cheat.num_cheats > 0)
-				menu = MENU_GAMESETTINGS_CHEATS;
-			else
-				InfoPrompt("Cheats file not found!");
-		}*/
+			menu = MENU_GAMESETTINGS_EMULATION;
+		}
 		else if(closeBtn.GetState() == STATE_CLICKED)
 		{
 			menu = MENU_EXIT;
@@ -2968,6 +2964,103 @@ static int MenuSettingsVideo()
 				sprintf (options.value[8], "On");
 			else
 				sprintf (options.value[8], "Off");
+
+			optionBrowser.TriggerUpdate();
+		}
+
+		if(backBtn.GetState() == STATE_CLICKED)
+		{
+			menu = MENU_GAMESETTINGS;
+		}
+	}
+	HaltGui();
+	mainWindow->Remove(&optionBrowser);
+	mainWindow->Remove(&w);
+	mainWindow->Remove(&titleTxt);
+	return menu;
+}
+
+static int MenuSettingsEmulation()
+{
+	int menu = MENU_NONE;
+	int ret;
+	int i = 0;
+	bool firstRun = true;
+	OptionList options;
+
+	sprintf(options.name[i++], "Hardware");
+	sprintf(options.name[i++], "(GB/GBC) Offset from UTC (hours)");
+
+	for(i=0; i < options.length; i++)
+		options.value[i][0] = 0;
+	
+	GuiText titleTxt("Game Settings - Emulation", 26, (GXColor){255, 255, 255, 255});
+	titleTxt.SetAlignment(ALIGN_LEFT, ALIGN_TOP);
+	titleTxt.SetPosition(50,50);
+
+	GuiSound btnSoundOver(button_over_pcm, button_over_pcm_size, SOUND_PCM);
+	GuiSound btnSoundClick(button_click_pcm, button_click_pcm_size, SOUND_PCM);
+	GuiImageData btnOutline(button_png);
+	GuiImageData btnOutlineOver(button_over_png);
+
+	GuiText backBtnTxt("Go Back", 22, (GXColor){0, 0, 0, 255});
+	GuiImage backBtnImg(&btnOutline);
+	GuiImage backBtnImgOver(&btnOutlineOver);
+	GuiButton backBtn(btnOutline.GetWidth(), btnOutline.GetHeight());
+	backBtn.SetAlignment(ALIGN_LEFT, ALIGN_BOTTOM);
+	backBtn.SetPosition(50, -35);
+	backBtn.SetLabel(&backBtnTxt);
+	backBtn.SetImage(&backBtnImg);
+	backBtn.SetImageOver(&backBtnImgOver);
+	backBtn.SetSoundOver(&btnSoundOver);
+	backBtn.SetSoundClick(&btnSoundClick);
+	backBtn.SetTrigger(trigA);
+	backBtn.SetTrigger(trig2);
+	backBtn.SetEffectGrow();
+
+	GuiOptionBrowser optionBrowser(552, 248, &options);
+	optionBrowser.SetPosition(0, 108);
+	optionBrowser.SetCol2Position(240);
+	optionBrowser.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
+
+	HaltGui();
+	GuiWindow w(screenwidth, screenheight);
+	w.Append(&backBtn);
+	mainWindow->Append(&optionBrowser);
+	mainWindow->Append(&w);
+	mainWindow->Append(&titleTxt);
+	ResumeGui();
+
+	while(menu == MENU_NONE)
+	{
+		usleep(THREAD_SLEEP);
+
+		ret = optionBrowser.GetClickedOption();
+
+		switch (ret)
+		{
+			case 0:
+				GCSettings.PreferSGB ^= 1;
+				break;
+			
+			case 1:
+				GCSettings.UTCOffset++;
+				if (GCSettings.UTCOffset == 13) {
+					GCSettings.UTCOffset -= 25;
+				}
+				break;
+		}
+
+		if(ret >= 0 || firstRun)
+		{
+			firstRun = false;
+
+			if (GCSettings.PreferSGB == 0)
+				sprintf (options.value[0], "GBC, SGB, GB");
+			else if (GCSettings.PreferSGB == 1)
+				sprintf (options.value[0], "SGB, GBC, GB");
+			
+			sprintf (options.value[1], "+%d", GCSettings.UTCOffset);
 
 			optionBrowser.TriggerUpdate();
 		}
@@ -4475,9 +4568,9 @@ MainMenu (int menu)
 			case MENU_GAMESETTINGS_VIDEO:
 				currentMenu = MenuSettingsVideo();
 				break;
-			/*case MENU_GAMESETTINGS_CHEATS:
-				currentMenu = MenuGameCheats();
-				break;*/
+			case MENU_GAMESETTINGS_EMULATION:
+				currentMenu = MenuSettingsEmulation();
+				break;
 			case MENU_GAMESETTINGS_PALETTE:
 				currentMenu = MenuPalette();
 				break;
