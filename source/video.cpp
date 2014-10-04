@@ -611,20 +611,20 @@ void paintDefaultBorder(u16* dest) {
 	if (SGBDefaultBorder) {
 		for (int y=0; y<40; y++) {
 			for (int x=0; x<256; x++) {
-				dest[258*y + x] = systemColorMap16[SGBDefaultBorder[258*y + x]];
+				dest[258*y + x] = SGBDefaultBorder[258*y + x];
 			}
 		}
 		for (int y=40; y<184; y++) {
 			for (int x=0; x<48; x++) {
-				dest[258*y + x] = systemColorMap16[SGBDefaultBorder[258*y + x]];
+				dest[258*y + x] = SGBDefaultBorder[258*y + x];
 			}
 			for (int x=208; x<256; x++) {
-				dest[258*y + x] = systemColorMap16[SGBDefaultBorder[258*y + x]];
+				dest[258*y + x] = SGBDefaultBorder[258*y + x];
 			}
 		}
 		for (int y=184; y<224; y++) {
 			for (int x=0; x<256; x++) {
-				dest[258*y + x] = systemColorMap16[SGBDefaultBorder[258*y + x]];
+				dest[258*y + x] = SGBDefaultBorder[258*y + x];
 			}
 		}
 		dest[lll++] = systemColorMap16[0x1f];
