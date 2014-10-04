@@ -87,6 +87,8 @@ struct SGCSettings{
 	int		SFXVolume;
 	int		Rumble;
 	int 	language;
+	int 	UTCOffset;
+	int 	PreferSGB;
 	char	LoadFolder[MAXPATHLEN];  // Path to game files
 	char	LastFileLoaded[MAXPATHLEN]; //Last file loaded filename
 	char	SaveFolder[MAXPATHLEN];  // Path to save files

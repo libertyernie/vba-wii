@@ -8,6 +8,9 @@ const u8 gbDisabledRam [8] = {0x80, 0xff, 0xf0, 0x00, 0x30, 0xbf, 0xbf, 0xbf};
 extern int gbGBCColorType;
 extern gbRegister PC;
 
+// for UTC offset
+#include "../../vbagx.h"
+
 mapperMBC1 gbDataMBC1 = {
   0, // RAM enable
   1, // ROM bank
@@ -326,7 +329,7 @@ mapperMBC3 gbDataMBC3 = {
 
 void memoryUpdateMBC3Clock()
 {
-  time_t now = time(NULL);
+  time_t now = time(NULL) - (GCSettings.UTCOffset*60*60);
   time_t diff = now - gbDataMBC3.mapperLastTime;
   if(diff > 0) {
     // update the clock according to the last update time
@@ -436,6 +439,7 @@ void mapperMBC3RAM(u16 address, u8 value)
       }
     } else {
       time(&gbDataMBC3.mapperLastTime);
+      gbDataMBC3.mapperLastTime -= (GCSettings.UTCOffset*60*60);
       switch(gbDataMBC3.mapperClockRegister) {
       case 0x08:
         gbDataMBC3.mapperSeconds = value;
@@ -1221,7 +1225,7 @@ void memoryUpdateTAMA5Clock()
   else
       gbDaysinMonth[1] = 28;
 
-  time_t now = time(NULL);
+  time_t now = time(NULL) - (GCSettings.UTCOffset*60*60);
   time_t diff = now - gbDataTAMA5.mapperLastTime;
   if(diff > 0) {
     // update the clock according to the last update time
@@ -1418,6 +1422,7 @@ void mapperTAMA5RAM(u16 address, u8 value)
               gbTAMA5ram[0x94] = MonthsH*16+MonthsL; // incorrect ? (not used by the game) ?
 
               time(&gbDataTAMA5.mapperLastTime);
+              gbDataMBC3.mapperLastTime -= (GCSettings.UTCOffset*60*60);
 
               gbMemoryMap[0xa][0] = 1;
             }
