@@ -2966,7 +2966,7 @@ static int MenuSettingsEmulation()
 	bool firstRun = true;
 	OptionList options;
 
-	sprintf(options.name[i++], "Hardware");
+	sprintf(options.name[i++], "Hardware (GB/GBC)");
 	sprintf(options.name[i++], "Offset from UTC (hours)");
 	sprintf(options.name[i++], "Super Game Boy border");
 	options.length = i;
@@ -3020,9 +3020,9 @@ static int MenuSettingsEmulation()
 		switch (ret)
 		{
 			case 0:
-				GCSettings.PreferHardware++;
-				if (GCSettings.PreferHardware > 2)
-					GCSettings.PreferHardware = 0;
+				GCSettings.GBHardware++;
+				if (GCSettings.GBHardware > 3)
+					GCSettings.GBHardware = 0;
 				break;
 			
 			case 1:
@@ -3041,12 +3041,18 @@ static int MenuSettingsEmulation()
 		{
 			firstRun = false;
 
-			if (GCSettings.PreferHardware == 0)
-				sprintf (options.value[0], "GB");
-			else if (GCSettings.PreferHardware == 1)
-				sprintf (options.value[0], "SGB");
-			else if (GCSettings.PreferHardware == 2)
-				sprintf (options.value[0], "GBC");
+			if (GCSettings.GBHardware == 0)
+				sprintf (options.value[0], "Auto");
+			else if (GCSettings.GBHardware == 1)
+				sprintf (options.value[0], "Game Boy Color");
+			else if (GCSettings.GBHardware == 2)
+				sprintf (options.value[0], "Super Game Boy");
+			else if (GCSettings.GBHardware == 3)
+				sprintf (options.value[0], "Game Boy");
+			else if (GCSettings.GBHardware == 4)
+				sprintf (options.value[0], "Game Boy Advance");
+			else if (GCSettings.GBHardware == 5)
+				sprintf (options.value[0], "Super Game Boy 2");
 			
 			sprintf (options.value[1], "%+.2f", GCSettings.OffsetMinutesUTC / 60.0);
 			

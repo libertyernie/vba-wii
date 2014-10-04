@@ -34,9 +34,6 @@ char gbBuffer[2048];
 
 extern u16 gbLineMix[160];
 
-// for SGB/GBC preference
-#include "../../vbagx.h"
-
 // mappers
 void (*mapper)(u16,u8) = NULL;
 void (*mapperRAM)(u16,u8) = NULL;
@@ -2152,17 +2149,12 @@ void gbGetHardwareType()
     }
   }
 
-  if((gbCgbMode == 0 || GCSettings.PreferHardware == 1) && (gbRom[0x146] == 0x03)) {
+  if((gbCgbMode == 0) && (gbRom[0x146] == 0x03)) {
     if(gbEmulatorType == 0 ||
        gbEmulatorType == 2 ||
        gbEmulatorType == 5)
       gbSgbMode = 1;
 	  gbCgbMode = 0;
-  }
-  
-  if (GCSettings.PreferHardware == 0) {
-    gbSgbMode = 0;
-	gbCgbMode = 0;
   }
 
   gbHardware = 1; // GB

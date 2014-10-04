@@ -88,7 +88,7 @@ struct SGCSettings{
 	int		Rumble;
 	int 	language;
 	int		OffsetMinutesUTC; // Used for clock on MBC3 and TAMA5
-	int 	PreferHardware;
+	int 	GBHardware;    // Mapped to gbEmulatorType in VBA
 	int 	SGBBorder;
 	char	LoadFolder[MAXPATHLEN];  // Path to game files
 	char	LastFileLoaded[MAXPATHLEN]; //Last file loaded filename

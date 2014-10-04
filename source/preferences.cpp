@@ -215,7 +215,7 @@ preparePrefsData ()
 	createXMLSection("Emulation", "Emulation Settings");
 
 	createXMLSetting("OffsetMinutesUTC", "Offset from UTC (minutes)", toStr(GCSettings.OffsetMinutesUTC));
-	createXMLSetting("PreferHardware", "Hardware (GB/SGB/GBC)", toStr(GCSettings.PreferHardware));
+	createXMLSetting("GBHardware", "Hardware (GB/GBC)", toStr(GCSettings.GBHardware));
 	createXMLSetting("SGBBorder", "Super Game Boy border", toStr(GCSettings.SGBBorder));
 
 	int datasize = mxmlSaveString(xml, (char *)savebuffer, SAVEBUFFERSIZE, XMLSaveCallback);
@@ -526,7 +526,7 @@ decodePrefsData ()
 			// Emulation Settings
 			
 			loadXMLSetting(&GCSettings.OffsetMinutesUTC, "OffsetMinutesUTC");
-			loadXMLSetting(&GCSettings.PreferHardware, "PreferHardware");
+			loadXMLSetting(&GCSettings.GBHardware, "GBHardware");
 			loadXMLSetting(&GCSettings.SGBBorder, "SGBBorder");
 		}
 		mxmlDelete(xml);
@@ -664,7 +664,7 @@ DefaultSettings ()
 	GCSettings.language = LANG_ENGLISH;
 #endif
 	GCSettings.OffsetMinutesUTC = 0;
-	GCSettings.PreferHardware = 2;
+	GCSettings.GBHardware = 0;
 	GCSettings.SGBBorder = 0;
 }
 
