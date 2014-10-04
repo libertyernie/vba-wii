@@ -19,6 +19,7 @@
 #include "vbagx.h"
 #include "menu.h"
 #include "input.h"
+#include "sgbborder.h"
 
 s32 CursorX, CursorY;
 bool CursorVisible;
@@ -581,6 +582,55 @@ void GX_Render_Init(int width, int height)
 	vheight = height;
 }
 
+bool borderAreaEmpty(u16* buffer) {
+	u16 reference = buffer[0];
+	for (int y=0; y<40; y++) {
+		for (int x=0; x<256; x++) {
+			if (buffer[258*y + x] != reference) return false;
+		}
+	}
+	for (int y=40; y<184; y++) {
+		for (int x=0; x<48; x++) {
+			if (buffer[258*y + x] != reference) return false;
+		}
+		for (int x=208; x<224; x++) {
+			if (buffer[258*y + x] != reference) return false;
+		}
+	}
+	for (int y=184; y<224; y++) {
+		for (int x=0; x<256; x++) {
+			if (buffer[258*y + x] != reference) return false;
+		}
+	}
+	return true;
+}
+
+u8 lll = 0;
+extern u16 systemColorMap16[0x10000];
+void paintDefaultBorder(u16* dest) {
+	if (SGBDefaultBorder) {
+		for (int y=0; y<40; y++) {
+			for (int x=0; x<256; x++) {
+				dest[258*y + x] = systemColorMap16[SGBDefaultBorder[258*y + x]];
+			}
+		}
+		for (int y=40; y<184; y++) {
+			for (int x=0; x<48; x++) {
+				dest[258*y + x] = systemColorMap16[SGBDefaultBorder[258*y + x]];
+			}
+			for (int x=208; x<256; x++) {
+				dest[258*y + x] = systemColorMap16[SGBDefaultBorder[258*y + x]];
+			}
+		}
+		for (int y=184; y<224; y++) {
+			for (int x=0; x<256; x++) {
+				dest[258*y + x] = systemColorMap16[SGBDefaultBorder[258*y + x]];
+			}
+		}
+		dest[lll++] = systemColorMap16[0x1f];
+	}
+}
+
 /****************************************************************************
 * GX_Render
 *
@@ -588,6 +638,10 @@ void GX_Render_Init(int width, int height)
 ****************************************************************************/
 void GX_Render(int width, int height, u8 * buffer, int pitch)
 {
+	if (width == 256 && height == 224 && borderAreaEmpty((u16*)buffer)) {
+		paintDefaultBorder((u16*)buffer);
+	}
+
 	int h, w;
 	long long int *dst = (long long int *) texturemem;
 	long long int *src1 = (long long int *) buffer;
