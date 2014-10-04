@@ -2989,7 +2989,7 @@ static int MenuSettingsEmulation()
 	OptionList options;
 
 	sprintf(options.name[i++], "Hardware");
-	sprintf(options.name[i++], "(GB/GBC) Offset from UTC (hours)");
+	sprintf(options.name[i++], "Offset from UTC (hours)");
 
 	for(i=0; i < options.length; i++)
 		options.value[i][0] = 0;
@@ -3040,13 +3040,15 @@ static int MenuSettingsEmulation()
 		switch (ret)
 		{
 			case 0:
-				GCSettings.PreferSGB ^= 1;
+				GCSettings.PreferHardware++;
+				if (GCSettings.PreferHardware > 2)
+					GCSettings.PreferHardware = 0;
 				break;
 			
 			case 1:
-				GCSettings.UTCOffset++;
-				if (GCSettings.UTCOffset == 13) {
-					GCSettings.UTCOffset -= 25;
+				GCSettings.OffsetMinutesUTC += 15;
+				if (GCSettings.OffsetMinutesUTC > 60*14) {
+					GCSettings.OffsetMinutesUTC = -60*12;
 				}
 				break;
 		}
@@ -3055,12 +3057,14 @@ static int MenuSettingsEmulation()
 		{
 			firstRun = false;
 
-			if (GCSettings.PreferSGB == 0)
-				sprintf (options.value[0], "GBC, SGB, GB");
-			else if (GCSettings.PreferSGB == 1)
-				sprintf (options.value[0], "SGB, GBC, GB");
+			if (GCSettings.PreferHardware == 0)
+				sprintf (options.value[0], "GB");
+			else if (GCSettings.PreferHardware == 1)
+				sprintf (options.value[0], "SGB");
+			else if (GCSettings.PreferHardware == 2)
+				sprintf (options.value[0], "GBC");
 			
-			sprintf (options.value[1], "+%d", GCSettings.UTCOffset);
+			sprintf (options.value[1], "%+.2f", GCSettings.OffsetMinutesUTC / 60.0);
 
 			optionBrowser.TriggerUpdate();
 		}

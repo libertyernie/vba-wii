@@ -214,8 +214,8 @@ preparePrefsData ()
 
 	createXMLSection("Emulation", "Emulation Settings");
 
-	createXMLSetting("UTCOffset", "Offset from UTC (hours)", toStr(GCSettings.UTCOffset));
-	createXMLSetting("PreferSGB", "Prefer SGB over GBC", toStr(GCSettings.PreferSGB));
+	createXMLSetting("OffsetMinutesUTC", "Offset from UTC (minutes)", toStr(GCSettings.OffsetMinutesUTC));
+	createXMLSetting("PreferHardware", "Hardware (GB/SGB/GBC)", toStr(GCSettings.PreferHardware));
 
 	int datasize = mxmlSaveString(xml, (char *)savebuffer, SAVEBUFFERSIZE, XMLSaveCallback);
 
@@ -522,8 +522,8 @@ decodePrefsData ()
 			loadXMLController(btnmap[CTRLR_CLASSIC], "ccpadmap");
 			loadXMLController(btnmap[CTRLR_NUNCHUK], "ncpadmap");
 			
-			loadXMLSetting(&GCSettings.UTCOffset, "UTCOffset");
-			loadXMLSetting(&GCSettings.PreferSGB, "PreferSGB");
+			loadXMLSetting(&GCSettings.OffsetMinutesUTC, "OffsetMinutesUTC");
+			loadXMLSetting(&GCSettings.PreferHardware, "PreferHardware");
 		}
 		mxmlDelete(xml);
 	}
@@ -659,8 +659,8 @@ DefaultSettings ()
 #else
 	GCSettings.language = LANG_ENGLISH;
 #endif
-	GCSettings.UTCOffset = 0;
-	GCSettings.PreferSGB = 0;
+	GCSettings.OffsetMinutesUTC = 0;
+	GCSettings.PreferHardware = 2;
 }
 
 
