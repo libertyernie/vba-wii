@@ -1847,7 +1847,6 @@ static int MenuGameSettings()
 #else
 	GuiImageData iconWiiControls(icon_settings_gamecube_png);
 #endif
-	GuiImageData iconEmulation(icon_game_settings_png);
 	GuiImageData btnCloseOutline(button_small_png);
 	GuiImageData btnCloseOutlineOver(button_small_over_png);
 
@@ -1906,7 +1905,7 @@ static int MenuGameSettings()
 	GuiImage wiiControlsBtnIcon(&iconWiiControls);
 	GuiButton wiiControlsBtn(btnLargeOutline.GetWidth(), btnLargeOutline.GetHeight());
 	wiiControlsBtn.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
-	wiiControlsBtn.SetPosition(-125, 250);
+	wiiControlsBtn.SetPosition(0, 250);
 	wiiControlsBtn.SetLabel(&wiiControlsBtnTxt1, 0);
 	wiiControlsBtn.SetLabel(&wiiControlsBtnTxt2, 1);
 	wiiControlsBtn.SetImage(&wiiControlsBtnImg);
@@ -1917,22 +1916,6 @@ static int MenuGameSettings()
 	wiiControlsBtn.SetTrigger(trigA);
 	wiiControlsBtn.SetTrigger(trig2);
 	wiiControlsBtn.SetEffectGrow();
-
-	GuiText emulationBtnTxt("Emulation", 22, (GXColor){0, 0, 0, 255});
-	GuiImage emulationBtnImg(&btnLargeOutline);
-	GuiImage emulationBtnImgOver(&btnLargeOutlineOver);
-	GuiImage emulationBtnIcon(&iconEmulation);
-	GuiButton emulationBtn(btnLargeOutline.GetWidth(), btnLargeOutline.GetHeight());
-	emulationBtn.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
-	emulationBtn.SetPosition(125, 250);
-	emulationBtn.SetLabel(&emulationBtnTxt);
-	emulationBtn.SetImage(&emulationBtnImg);
-	emulationBtn.SetImageOver(&emulationBtnImgOver);
-	emulationBtn.SetIcon(&emulationBtnIcon);
-	emulationBtn.SetSoundOver(&btnSoundOver);
-	emulationBtn.SetSoundClick(&btnSoundClick);
-	emulationBtn.SetTrigger(trigA);
-	emulationBtn.SetEffectGrow();
 
 	GuiText closeBtnTxt("Close", 20, (GXColor){0, 0, 0, 255});
 	GuiImage closeBtnImg(&btnCloseOutline);
@@ -1971,7 +1954,6 @@ static int MenuGameSettings()
 	w.Append(&mappingBtn);
 	w.Append(&videoBtn);
 	w.Append(&wiiControlsBtn);
-	w.Append(&emulationBtn);
 	w.Append(&closeBtn);
 	w.Append(&backBtn);
 
@@ -1998,10 +1980,6 @@ static int MenuGameSettings()
 			else sprintf(s, "OFF");
 			wiiControlsBtnTxt2.SetText(s);
 			wiiControlsBtn.ResetState();
-		}
-		else if(emulationBtn.GetState() == STATE_CLICKED)
-		{
-			menu = MENU_GAMESETTINGS_EMULATION;
 		}
 		else if(closeBtn.GetState() == STATE_CLICKED)
 		{
@@ -2873,7 +2851,7 @@ static int MenuSettingsVideo()
 						GCSettings.gbaFixed = 0;
 				} else {
 					GCSettings.gbFixed++;
-					if(GCSettings.gbFixed > 4)
+					if(GCSettings.gbFixed > 3)
 						GCSettings.gbFixed = 0;
 				}
 				break;
@@ -3072,7 +3050,7 @@ static int MenuSettingsEmulation()
 
 		if(backBtn.GetState() == STATE_CLICKED)
 		{
-			menu = MENU_GAMESETTINGS;
+			menu = MENU_SETTINGS;
 		}
 	}
 	HaltGui();
@@ -3102,6 +3080,7 @@ static int MenuSettings()
 	GuiImageData iconFile(icon_settings_file_png);
 	GuiImageData iconMenu(icon_settings_menu_png);
 	GuiImageData iconNetwork(icon_settings_network_png);
+	GuiImageData iconEmulation(icon_game_settings_png);
 
 	GuiText savingBtnTxt1("Saving", 22, (GXColor){0, 0, 0, 255});
 	GuiText savingBtnTxt2("&", 18, (GXColor){0, 0, 0, 255});
@@ -3151,7 +3130,7 @@ static int MenuSettings()
 	GuiImage networkBtnIcon(&iconNetwork);
 	GuiButton networkBtn(btnLargeOutline.GetWidth(), btnLargeOutline.GetHeight());
 	networkBtn.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
-	networkBtn.SetPosition(0, 250);
+	networkBtn.SetPosition(-125, 250);
 	networkBtn.SetLabel(&networkBtnTxt);
 	networkBtn.SetImage(&networkBtnImg);
 	networkBtn.SetImageOver(&networkBtnImgOver);
@@ -3161,6 +3140,22 @@ static int MenuSettings()
 	networkBtn.SetTrigger(trigA);
 	networkBtn.SetTrigger(trig2);
 	networkBtn.SetEffectGrow();
+
+	GuiText emulationBtnTxt("Emulation", 22, (GXColor){0, 0, 0, 255});
+	GuiImage emulationBtnImg(&btnLargeOutline);
+	GuiImage emulationBtnImgOver(&btnLargeOutlineOver);
+	GuiImage emulationBtnIcon(&iconEmulation);
+	GuiButton emulationBtn(btnLargeOutline.GetWidth(), btnLargeOutline.GetHeight());
+	emulationBtn.SetAlignment(ALIGN_CENTRE, ALIGN_TOP);
+	emulationBtn.SetPosition(125, 250);
+	emulationBtn.SetLabel(&emulationBtnTxt);
+	emulationBtn.SetImage(&emulationBtnImg);
+	emulationBtn.SetImageOver(&emulationBtnImgOver);
+	emulationBtn.SetIcon(&emulationBtnIcon);
+	emulationBtn.SetSoundOver(&btnSoundOver);
+	emulationBtn.SetSoundClick(&btnSoundClick);
+	emulationBtn.SetTrigger(trigA);
+	emulationBtn.SetEffectGrow();
 
 	GuiText backBtnTxt("Go Back", 22, (GXColor){0, 0, 0, 255});
 	GuiImage backBtnImg(&btnOutline);
@@ -3198,6 +3193,7 @@ static int MenuSettings()
 	w.Append(&savingBtn);
 	w.Append(&menuBtn);
 	w.Append(&networkBtn);
+	w.Append(&emulationBtn);
 	w.Append(&backBtn);
 	w.Append(&resetBtn);
 
@@ -3220,6 +3216,10 @@ static int MenuSettings()
 		else if(networkBtn.GetState() == STATE_CLICKED)
 		{
 			menu = MENU_SETTINGS_NETWORK;
+		}
+		else if(emulationBtn.GetState() == STATE_CLICKED)
+		{
+			menu = MENU_SETTINGS_EMULATION;
 		}
 		else if(backBtn.GetState() == STATE_CLICKED)
 		{
@@ -4573,9 +4573,6 @@ MainMenu (int menu)
 			case MENU_GAMESETTINGS_VIDEO:
 				currentMenu = MenuSettingsVideo();
 				break;
-			case MENU_GAMESETTINGS_EMULATION:
-				currentMenu = MenuSettingsEmulation();
-				break;
 			case MENU_GAMESETTINGS_PALETTE:
 				currentMenu = MenuPalette();
 				break;
@@ -4590,6 +4587,9 @@ MainMenu (int menu)
 				break;
 			case MENU_SETTINGS_NETWORK:
 				currentMenu = MenuSettingsNetwork();
+				break;
+			case MENU_SETTINGS_EMULATION:
+				currentMenu = MenuSettingsEmulation();
 				break;
 			default: // unrecognized menu
 				currentMenu = MenuGameSelection();
