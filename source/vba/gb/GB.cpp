@@ -5613,16 +5613,16 @@ bool MemgbReadSaveMBC3(char * membuffer, int read) {
 			return false;
 		memcpy(&gbDataMBC3.mapperSeconds, membuffer+offset, sizeof(int) * 10 + sizeof(time_t));
 		
-		if (gbDataMBC3.mapperSeconds <= 60) {
+		bool zero = gbDataMBC3.mapperSeconds || gbDataMBC3.mapperMinutes || gbDataMBC3.mapperHours;
+		// If all values are zero, it's not possible to determine the byte order - assume little endian
+		if (!zero && gbDataMBC3.mapperSeconds <= 60 && gbDataMBC3.mapperMinutes <= 60 && gbDataMBC3.mapperHours <= 24) {
 			// Big endian format (VBA-GX 2.3.0 and lower)
 		} else {
 			// Little endian format (VBA/VBA-M on x86)
 			swap_endian_32(&gbDataMBC3.mapperSeconds, sizeof(int) * 10 + sizeof(time_t));
 			if (gbDataMBC3.mapperSeconds > 60) {
-				// Fix invalid time values
-				gbDataMBC3.mapperSeconds %= 60;
-				gbDataMBC3.mapperMinutes %= 60;
-				gbDataMBC3.mapperHours %= 24;
+				// Reset the clock
+				memset(&gbDataMBC3.mapperSeconds, 0, sizeof(int) * 10 + sizeof(time_t));
 			}
 		}
 	}
@@ -5665,16 +5665,16 @@ bool MemgbReadSaveTAMA5(char * membuffer, int read) {
 		
 		swap_endian_32(&gbDataTAMA5.mapperSeconds, sizeof(int) * 14 + sizeof(time_t));
 		
-		if (gbDataTAMA5.mapperSeconds <= 60) {
+		bool zero = gbDataTAMA5.mapperSeconds || gbDataTAMA5.mapperMinutes || gbDataTAMA5.mapperHours;
+		// If all values are zero, it's not possible to determine the byte order - assume little endian
+		if (!zero && gbDataTAMA5.mapperSeconds <= 60 && gbDataTAMA5.mapperMinutes <= 60 && gbDataTAMA5.mapperHours <= 24) {
 			// Big endian format (VBA-GX 2.3.0 and lower)
 		} else {
 			// Little endian format (VBA/VBA-M on x86)
 			swap_endian_32(&gbDataTAMA5.mapperSeconds, sizeof(int) * 14 + sizeof(time_t));
 			if (gbDataTAMA5.mapperSeconds > 60) {
-				// Fix invalid time values
-				gbDataTAMA5.mapperSeconds %= 60;
-				gbDataTAMA5.mapperMinutes %= 60;
-				gbDataTAMA5.mapperHours %= 24;
+				// Reset the clock
+				memset(&gbDataMBC3.mapperSeconds, 0, sizeof(int) * 14 + sizeof(time_t));
 			}
 		}
 		
