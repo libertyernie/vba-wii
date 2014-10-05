@@ -19,7 +19,6 @@
 #include "vbagx.h"
 #include "menu.h"
 #include "input.h"
-#include "sgbborder.h"
 
 s32 CursorX, CursorY;
 bool CursorVisible;
@@ -41,6 +40,8 @@ int gameScreenPngSize = 0;
 
 int screenheight = 480;
 int screenwidth = 640;
+
+u16 *SGBDefaultBorder = NULL;
 
 /*** 3D GX ***/
 #define DEFAULT_FIFO_SIZE ( 256 * 1024 )
@@ -605,32 +606,6 @@ bool borderAreaEmpty(u16* buffer) {
 	return true;
 }
 
-u8 lll = 0;
-extern u16 systemColorMap16[0x10000];
-void paintDefaultBorder(u16* dest) {
-	if (SGBDefaultBorder) {
-		for (int y=0; y<40; y++) {
-			for (int x=0; x<256; x++) {
-				dest[258*y + x] = SGBDefaultBorder[258*y + x];
-			}
-		}
-		for (int y=40; y<184; y++) {
-			for (int x=0; x<48; x++) {
-				dest[258*y + x] = SGBDefaultBorder[258*y + x];
-			}
-			for (int x=208; x<256; x++) {
-				dest[258*y + x] = SGBDefaultBorder[258*y + x];
-			}
-		}
-		for (int y=184; y<224; y++) {
-			for (int x=0; x<256; x++) {
-				dest[258*y + x] = SGBDefaultBorder[258*y + x];
-			}
-		}
-		dest[lll++] = systemColorMap16[0x1f];
-	}
-}
-
 /****************************************************************************
 * GX_Render
 *
@@ -638,16 +613,13 @@ void paintDefaultBorder(u16* dest) {
 ****************************************************************************/
 void GX_Render(int width, int height, u8 * buffer, int pitch)
 {
-	if (width == 256 && height == 224 && borderAreaEmpty((u16*)buffer)) {
-		paintDefaultBorder((u16*)buffer);
-	}
-
 	int h, w;
 	long long int *dst = (long long int *) texturemem;
 	long long int *src1 = (long long int *) buffer;
 	long long int *src2 = (long long int *) (buffer + pitch);
 	long long int *src3 = (long long int *) (buffer + (pitch << 1));
 	long long int *src4 = (long long int *) (buffer + (pitch * 3));
+	long long int *sgb = (long long int *) SGBDefaultBorder;
 	int rowpitch = (pitch >> 3) * 3;
 	int rowadjust = ( pitch % 8 ) << 2;
 
@@ -672,14 +644,28 @@ void GX_Render(int width, int height, u8 * buffer, int pitch)
 	GX_SetTevOp(GX_TEVSTAGE0, GX_DECAL);
 	GX_SetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD0, GX_TEXMAP0, GX_COLOR0A0);
 
+	bool useDefaultBorder = width == 256 && height == 224 && borderAreaEmpty((u16*)buffer);
+	
 	for (h = 0; h < vheight; h += 4)
 	{
 		for (w = 0; w < vwid2; ++w)
 		{
-			*dst++ = *src1++;
-			*dst++ = *src2++;
-			*dst++ = *src3++;
-			*dst++ = *src4++;
+			if (useDefaultBorder && (h < 40 || h >= 184 || w < 12 || w >= 52)) {
+				*dst++ = *sgb++;
+				*dst++ = *sgb++;
+				*dst++ = *sgb++;
+				*dst++ = *sgb++;
+				src1++;
+				src2++;
+				src3++;
+				src4++;
+			} else {
+				*dst++ = *src1++;
+				*dst++ = *src2++;
+				*dst++ = *src3++;
+				*dst++ = *src4++;
+				sgb += 4;
+			}
 		}
 
 		src1 += rowpitch;

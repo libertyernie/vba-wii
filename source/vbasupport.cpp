@@ -57,6 +57,9 @@ char RomTitle[17];
 int SunBars = 3;
 bool TiltSideways = false;
 
+// video.cpp
+extern u16 *SGBDefaultBorder;
+
 /****************************************************************************
  * VBA Globals
  ***************************************************************************/
@@ -916,6 +919,24 @@ bool LoadGBROM()
 	bios = (u8 *)calloc(1,0x100);
 
 	systemSaveUpdateCounter = SYSTEM_SAVE_NOT_UPDATED;
+	
+	// Temporarily store RGB565 border texture in the area allocated for the ROM.
+	char* rgb565 = (char*)gbRom;
+	if (LoadFile(rgb565, "sd:/border.tex0", 1024*1024*8, SILENT)) {
+		SGBDefaultBorder = (u16*)malloc(256*224*2);
+		
+		// Assume the texture is 256x224.
+		// VBA-M leaves two extra pixels after the end of each line, but this
+		// will be handled when copying the border to the display buffer
+		// (which needs to be done line-by-line to avoid covering the actual
+		// game in the center.)
+		if (strncmp(rgb565, "TEX0", 4) == 0) {
+			// TEX0 file with information, probably exported by BrawlLib.
+			rgb565 += 64;
+		}
+		
+		memmove(SGBDefaultBorder, rgb565, 256*224*2);
+	}
 
 	if(!inSz)
 	{
@@ -1026,6 +1047,11 @@ bool LoadVBAROM()
 
 	VMClose(); // cleanup GBA memory
 	gbCleanUp(); // cleanup GB memory
+	
+	if (SGBDefaultBorder != NULL) {
+		free(SGBDefaultBorder);
+		SGBDefaultBorder = NULL;
+	}
 
 	if(cartridgeType == 2)
 	{
