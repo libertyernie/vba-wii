@@ -455,10 +455,7 @@ static inline void UpdateScaling()
 		TvAspectRatio = 4.0f/3.0f;
 	#endif
 
-	if (vwidth == 240) // GBA
-		GameboyAspectRatio = 240.0f/160.0f; // assumes square pixels on GB Advance
-	else // GB or GBC
-		GameboyAspectRatio = 160.0f/144.0f; // assumes square pixels on GB Colour
+	GameboyAspectRatio = ((vwidth * 1.0) / vheight);
 
 	if (TvAspectRatio>GameboyAspectRatio)
 	{
@@ -493,10 +490,7 @@ static inline void UpdateScaling()
 		fixed = GCSettings.gbFixed;
 	}
 
-	if (fixed) {
-		xscale = vwidth * fixed / 2.0;
-		yscale = vheight * fixed / 2.0;
-	} else {
+	if (!fixed) {
 		xscale *= zoomHor;
 		yscale *= zoomVert;
 	}
@@ -512,7 +506,15 @@ static inline void UpdateScaling()
 
 	memset(&view, 0, sizeof(Mtx));
 	guLookAt(view, &cam.pos, &cam.up, &cam.view);
-	GX_SetViewport(0, 0, vmode->fbWidth, vmode->efbHeight, 0, 1);
+	if (fixed) {
+		int vw = vwidth * fixed;
+		int vh = vheight * fixed;
+		int vx = (vmode->fbWidth - vw) / 2;
+		int vy = (vmode->efbHeight - vh) / 2;
+		GX_SetViewport(vx, vy, vw, vh, 0, 1);
+	} else {
+		GX_SetViewport(0, 0, vmode->fbWidth, vmode->efbHeight, 0, 1);
+	}
 
 	updateScaling = 0;
 }
