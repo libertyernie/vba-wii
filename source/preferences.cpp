@@ -171,6 +171,7 @@ preparePrefsData ()
 	createXMLSetting("AppendAuto", "Append Auto to .SAV Files", toStr(GCSettings.AppendAuto));
 	//createXMLSetting("CheatFolder", "Cheats Folder", GCSettings.CheatFolder);
 	createXMLSetting("ScreenshotsFolder", "Screenshots Folder", GCSettings.ScreenshotsFolder);
+	createXMLSetting("BorderFolder", "SGB Borders Folder", GCSettings.BorderFolder);
 
 	createXMLSection("Network", "Network Settings");
 
@@ -482,6 +483,7 @@ decodePrefsData ()
 			loadXMLSetting(&GCSettings.AppendAuto, "AppendAuto");
 			//loadXMLSetting(GCSettings.CheatFolder, "CheatFolder", sizeof(GCSettings.CheatFolder));
 			loadXMLSetting(GCSettings.ScreenshotsFolder, "ScreenshotsFolder", sizeof(GCSettings.ScreenshotsFolder));
+			loadXMLSetting(GCSettings.BorderFolder, "BorderFolder", sizeof(GCSettings.BorderFolder));
 
 			// Network Settings
 
@@ -624,7 +626,8 @@ DefaultSettings ()
 	sprintf (GCSettings.LoadFolder, "%s/roms", APPFOLDER); // Path to game files
 	sprintf (GCSettings.SaveFolder, "%s/saves", APPFOLDER); // Path to save files
 	sprintf (GCSettings.CheatFolder, "%s/cheats", APPFOLDER); // Path to cheat files
-	sprintf (GCSettings.ScreenshotsFolder, "%s/screenshots", APPFOLDER); // Path to cheat files
+	sprintf (GCSettings.ScreenshotsFolder, "%s/screenshots", APPFOLDER);
+	sprintf (GCSettings.BorderFolder, "%s/borders", APPFOLDER);
 	GCSettings.AutoLoad = 1;
 	GCSettings.AutoSave = 1;
 	GCSettings.AppendAuto = 1;

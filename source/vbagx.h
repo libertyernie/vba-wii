@@ -40,7 +40,8 @@ enum {
 enum {
 	FILE_SRAM,
 	FILE_SNAPSHOT,
-	FILE_ROM
+	FILE_ROM,
+	FILE_BORDER_RGB565
 };
 
 enum {
@@ -95,6 +96,7 @@ struct SGCSettings{
 	char	SaveFolder[MAXPATHLEN];  // Path to save files
 	char	CheatFolder[MAXPATHLEN]; // Path to cheat files
 	char	ScreenshotsFolder[MAXPATHLEN]; //Path to screenshots files
+	char	BorderFolder[MAXPATHLEN];  // Path to Super Game Boy border files
 	char	smbip[80];
 	char	smbuser[20];
 	char	smbpwd[20];

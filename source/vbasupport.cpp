@@ -907,6 +907,8 @@ extern bool gbUpdateSizes();
 
 bool LoadGBROM()
 {
+	gbEmulatorType = GCSettings.GBHardware;
+
 	if (browserList[browser.selIndex].length > 1024*1024*8) {
 		InfoPrompt("ROM size is too large (> 8 MB)");
 		return false;
@@ -922,7 +924,19 @@ bool LoadGBROM()
 	
 	// Temporarily store RGB565 border texture in the area allocated for the ROM.
 	char* rgb565 = (char*)gbRom;
-	if (LoadFile(rgb565, "sd:/border.tex0", 1024*1024*8, SILENT)) {
+	bool borderLoaded = false;
+	char borderPath[1024];
+	if (MakeFilePath(borderPath, FILE_BORDER_RGB565, inSz ? szpath : browserList[browser.selIndex].filename)) {
+		InfoPrompt(borderPath);
+		borderLoaded = LoadFile(rgb565, borderPath, 1024*1024*8, SILENT);
+	}
+	if (!borderLoaded) {
+		if (MakeFilePath(borderPath, FILE_BORDER_RGB565)) {
+			InfoPrompt(borderPath);
+			borderLoaded = LoadFile(rgb565, borderPath, 1024*1024*8, SILENT);
+		}
+	}
+	if (borderLoaded) {
 		SGBDefaultBorder = (u16*)malloc(256*224*2);
 		
 		// Assume the texture is 256x224.
