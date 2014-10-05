@@ -905,6 +905,64 @@ void LoadPatch()
 
 extern bool gbUpdateSizes();
 
+void LoadSGBBorder(u8* png_tmp_buf)
+{
+	bool borderLoaded = false;
+	char borderPath[1024];
+	if (MakeFilePath(borderPath, FILE_BORDER_PNG, inSz ? szpath : browserList[browser.selIndex].filename)) {
+		borderLoaded = LoadFile((char*)png_tmp_buf, borderPath, 1024*1024*8, SILENT);
+	}
+	if (!borderLoaded) {
+		if (MakeFilePath(borderPath, FILE_BORDER_PNG)) {
+			borderLoaded = LoadFile((char*)png_tmp_buf, borderPath, 1024*1024*8, SILENT);
+		}
+	}
+	if (!borderLoaded) return;
+	
+	PNGUPROP imgProp;
+	IMGCTX ctx = NULL;
+	do {
+		ctx = PNGU_SelectImageFromBuffer(png_tmp_buf);
+		
+		if (ctx == NULL) {
+			char error[1100];
+			sprintf(error, "Error reading %s", borderPath);
+			ErrorPrompt(error);
+			break;
+		}
+		
+		int r = PNGU_GetImageProperties(ctx, &imgProp);
+		if (r != PNGU_OK) {
+			char error[1100];
+			sprintf(error, "PNGU properties error (%d): %s", r, borderPath);
+			ErrorPrompt(error);
+			break;
+		}
+		
+		if (imgProp.imgWidth != 256 || imgProp.imgHeight != 224) {
+			char error[1100];
+			sprintf(error, "Wrong size (should be 256x224): %s", borderPath);
+			ErrorPrompt(error);
+			break;
+		}
+		
+		SGBDefaultBorder = (u16*)malloc(256*224*2);
+		r = PNGU_DecodeTo4x4RGB565 (ctx, imgProp.imgWidth, imgProp.imgHeight, SGBDefaultBorder);
+		if (r != PNGU_OK) {
+			char error[1100];
+			sprintf(error, "PNGU decoding error (%d): %s", r, borderPath);
+			ErrorPrompt(error);
+			free(SGBDefaultBorder);
+			SGBDefaultBorder = NULL;
+			break;
+		}
+	} while (false);
+	
+	// Cleanup
+	if (ctx != NULL)
+		PNGU_ReleaseImageContext(ctx);
+}
+
 bool LoadGBROM()
 {
 	gbEmulatorType = GCSettings.GBHardware;
@@ -922,35 +980,8 @@ bool LoadGBROM()
 
 	systemSaveUpdateCounter = SYSTEM_SAVE_NOT_UPDATED;
 	
-	// Temporarily store RGB565 border texture in the area allocated for the ROM.
-	char* rgb565 = (char*)gbRom;
-	bool borderLoaded = false;
-	char borderPath[1024];
-	if (MakeFilePath(borderPath, FILE_BORDER_RGB565, inSz ? szpath : browserList[browser.selIndex].filename)) {
-		InfoPrompt(borderPath);
-		borderLoaded = LoadFile(rgb565, borderPath, 1024*1024*8, SILENT);
-	}
-	if (!borderLoaded) {
-		if (MakeFilePath(borderPath, FILE_BORDER_RGB565)) {
-			InfoPrompt(borderPath);
-			borderLoaded = LoadFile(rgb565, borderPath, 1024*1024*8, SILENT);
-		}
-	}
-	if (borderLoaded) {
-		SGBDefaultBorder = (u16*)malloc(256*224*2);
-		
-		// Assume the texture is 256x224.
-		// VBA-M leaves two extra pixels after the end of each line, but this
-		// will be handled when copying the border to the display buffer
-		// (which needs to be done line-by-line to avoid covering the actual
-		// game in the center.)
-		if (strncmp(rgb565, "TEX0", 4) == 0) {
-			// TEX0 file with information, probably exported by BrawlLib.
-			rgb565 += 64;
-		}
-		
-		memmove(SGBDefaultBorder, rgb565, 256*224*2);
-	}
+	// Temporarily store PNG data in the area allocated for the ROM, convert to RGB565
+	LoadSGBBorder(gbRom);
 
 	if(!inSz)
 	{

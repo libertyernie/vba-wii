@@ -258,7 +258,7 @@ bool MakeFilePath(char filepath[], int type, char * filename, int filenum)
 			sprintf(temppath, "%s%s",browser.dir,browserList[browser.selIndex].filename);
 		}
 	}
-	else if (type == FILE_BORDER_RGB565)
+	else if (type == FILE_BORDER_PNG)
 	{
 		const char* loadedpath = filename;
 		if (loadedpath == NULL) loadedpath = "default";
@@ -266,7 +266,7 @@ bool MakeFilePath(char filepath[], int type, char * filename, int filenum)
 		const char* loadedname = strrchr(loadedpath, '/');
 		if (loadedname == NULL) loadedname = loadedpath;
 		StripExt(file, loadedname);
-		sprintf(temppath, "%s%s/%s.tex0", pathPrefix[GCSettings.LoadMethod], GCSettings.BorderFolder, file);
+		sprintf(temppath, "%s%s/%s.png", pathPrefix[GCSettings.LoadMethod], GCSettings.BorderFolder, file);
 	}
 	else
 	{
