@@ -360,6 +360,9 @@ bool LoadBatteryOrStateAuto(int action, bool silent)
 		if (LoadBatteryOrState(filepath, action, SILENT))
 			return true;
 
+		if (!GCSettings.AppendAuto)
+			return false;
+
 		// look for file with no number or Auto appended
 		if(!MakeFilePath(filepath2, action, ROMFilename, -1))
 			return false;
@@ -431,7 +434,7 @@ bool SaveBatteryOrState(char * filepath, int action, bool silent)
 					}
 					stateheader* sh = stateheader_for(old_sram, RomTitle);
 					if (sh == NULL) {
-						ErrorPrompt(generic_goomba_error);
+						// Game probably doesn't use SRAM
 						datasize = 0;
 					} else {
 						void* new_sram = goomba_new_sav(old_sram, sh, savebuffer, datasize);
