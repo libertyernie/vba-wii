@@ -38,3 +38,4 @@ int gbBorderColumnSkip = 0;
 int gbDmaTicks = 0;
 
 u8 (*gbSerialFunction)(u8) = NULL;
+void (*sgbBorderListener)(bool) = NULL;

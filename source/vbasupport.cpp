@@ -57,9 +57,6 @@ char RomTitle[17];
 int SunBars = 3;
 bool TiltSideways = false;
 
-// video.cpp
-extern u16 *SGBDefaultBorder;
-
 /****************************************************************************
  * VBA Globals
  ***************************************************************************/
@@ -911,11 +908,12 @@ extern bool gbUpdateSizes();
 void LoadSGBBorder(u8* png_tmp_buf)
 {
 	bool borderLoaded = false;
-	char borderPath[1024];
+	char borderPath[MAXPATHLEN];
 	if (MakeFilePath(borderPath, FILE_BORDER_PNG, inSz ? szpath : browserList[browser.selIndex].filename)) {
 		borderLoaded = LoadFile((char*)png_tmp_buf, borderPath, 1024*1024*8, SILENT);
 	}
 	if (!borderLoaded) {
+		// Try default border.png
 		if (MakeFilePath(borderPath, FILE_BORDER_PNG)) {
 			borderLoaded = LoadFile((char*)png_tmp_buf, borderPath, 1024*1024*8, SILENT);
 		}
@@ -928,23 +926,23 @@ void LoadSGBBorder(u8* png_tmp_buf)
 		ctx = PNGU_SelectImageFromBuffer(png_tmp_buf);
 		
 		if (ctx == NULL) {
-			char error[1100];
-			sprintf(error, "Error reading %s", borderPath);
+			char error[1024]; error[1023] = 0;
+			snprintf(error, 1023, "Error reading %s", borderPath);
 			ErrorPrompt(error);
 			break;
 		}
 		
 		int r = PNGU_GetImageProperties(ctx, &imgProp);
 		if (r != PNGU_OK) {
-			char error[1100];
-			sprintf(error, "PNGU properties error (%d): %s", r, borderPath);
+			char error[1024]; error[1023] = 0;
+			snprintf(error, 1023, "PNGU properties error (%d): %s", r, borderPath);
 			ErrorPrompt(error);
 			break;
 		}
 		
 		if (imgProp.imgWidth != 256 || imgProp.imgHeight != 224) {
-			char error[1100];
-			sprintf(error, "Wrong size (should be 256x224): %s", borderPath);
+			char error[1024]; error[1023] = 0;
+			snprintf(error, 1023, "Wrong size (should be 256x224): %s", borderPath);
 			ErrorPrompt(error);
 			break;
 		}
@@ -952,8 +950,8 @@ void LoadSGBBorder(u8* png_tmp_buf)
 		SGBDefaultBorder = (u16*)malloc(256*224*2);
 		r = PNGU_DecodeTo4x4RGB565 (ctx, imgProp.imgWidth, imgProp.imgHeight, SGBDefaultBorder);
 		if (r != PNGU_OK) {
-			char error[1100];
-			sprintf(error, "PNGU decoding error (%d): %s", r, borderPath);
+			char error[1024]; error[1023] = 0;
+			snprintf(error, 1023, "PNGU decoding error (%d): %s", r, borderPath);
 			ErrorPrompt(error);
 			free(SGBDefaultBorder);
 			SGBDefaultBorder = NULL;
@@ -966,8 +964,17 @@ void LoadSGBBorder(u8* png_tmp_buf)
 		PNGU_ReleaseImageContext(ctx);
 }
 
+// Runs when a SGB border is loaded from the ROM by the emulator (or cleared from memory.)
+void OnSGBBorderLoad(bool state) {
+	SGBBorderLoaded = state;
+	if (state) {
+		SaveSGBBorderOnNextRender = true;
+	}
+}
+
 bool LoadGBROM()
 {
+	sgbBorderListener = &OnSGBBorderLoad;
 	gbEmulatorType = GCSettings.GBHardware;
 
 	if (browserList[browser.selIndex].length > 1024*1024*8) {

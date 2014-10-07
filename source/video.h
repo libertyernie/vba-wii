@@ -38,4 +38,8 @@ extern u8 * gameScreenPng;
 extern int gameScreenPngSize;
 extern u32 FrameTimer;
 
+extern bool SGBBorderLoaded;
+extern u16 *SGBDefaultBorder;
+extern bool SaveSGBBorderOnNextRender;
+
 #endif

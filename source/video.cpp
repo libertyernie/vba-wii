@@ -42,6 +42,8 @@ int screenheight = 480;
 int screenwidth = 640;
 
 u16 *SGBDefaultBorder = NULL;
+bool SGBBorderLoaded = false;
+bool SaveSGBBorderOnNextRender = false;
 
 /*** 3D GX ***/
 #define DEFAULT_FIFO_SIZE ( 256 * 1024 )
@@ -608,6 +610,28 @@ bool borderAreaEmpty(u16* buffer) {
 	return true;
 }
 
+struct TEX0Header {
+	char tag[4];
+	s32 size;
+	s32 version;
+	s32 bresOffset;
+	
+	s32 headerLen;
+	s32 stringOffset;
+	s32 hasPalette;
+	s16 width;
+	s16 height;
+	
+	s32 pixelFormat;
+	s32 levelOfDetail;
+	f32 minLod;
+	f32 maxLod;
+	
+	s32 origPathOffset;
+	s32 r1;
+	s32 r2;
+	s32 r3;
+};
 /****************************************************************************
 * GX_Render
 *
@@ -645,14 +669,12 @@ void GX_Render(int width, int height, u8 * buffer, int pitch)
 	GX_InvalidateTexAll();
 	GX_SetTevOp(GX_TEVSTAGE0, GX_DECAL);
 	GX_SetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD0, GX_TEXMAP0, GX_COLOR0A0);
-
-	bool useDefaultBorder = width == 256 && height == 224 && borderAreaEmpty((u16*)buffer);
 	
 	for (h = 0; h < vheight; h += 4)
 	{
 		for (w = 0; w < vwid2; ++w)
 		{
-			if (useDefaultBorder && (h < 40 || h >= 184 || w < 12 || w >= 52)) {
+			if (!SGBBorderLoaded && (h < 40 || h >= 184 || w < 12 || w >= 52)) {
 				*dst++ = *sgb++;
 				*dst++ = *sgb++;
 				*dst++ = *sgb++;
@@ -685,6 +707,39 @@ void GX_Render(int width, int height, u8 * buffer, int pitch)
 			src3 = (long long int *)(ra + rowadjust);
 			ra = (char *)src4;
 			src4 = (long long int *)(ra + rowadjust);
+		}
+	}
+	
+	if (SaveSGBBorderOnNextRender) {
+		SaveSGBBorderOnNextRender = false;
+		FILE* f = fopen("sd:/test.tex0", "wb");
+		if (f) {
+			struct TEX0Header t;
+			memcpy(&t.tag, "TEX0", 4);
+			t.size = 256*224*2;
+			t.version = 1;
+			t.bresOffset = 0;
+			
+			t.headerLen = 64;
+			t.stringOffset = t.size + t.headerLen + 4;
+			t.hasPalette = 0;
+			t.width = 256;
+			t.height = 224;
+			
+			t.pixelFormat = 4;
+			t.levelOfDetail = 1;
+			t.minLod = 0;
+			t.maxLod = 0;
+			
+			t.origPathOffset = 0;
+			fwrite(&t, 1, 64, f);
+			fwrite(texturemem, 1, t.size, f);
+			
+			const char* str = "BORDER\0\0";
+			u32 len = 6;
+			fwrite(&len, 1, 4, f);
+			fwrite(str, 1, 8, f);
+			fclose(f);
 		}
 	}
 

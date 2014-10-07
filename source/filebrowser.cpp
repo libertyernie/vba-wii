@@ -265,6 +265,14 @@ bool MakeFilePath(char filepath[], int type, char * filename, int filenum)
 		// Ensure that loadedname contains only the filename, not the path
 		const char* loadedname = strrchr(loadedpath, '/');
 		if (loadedname == NULL) loadedname = loadedpath;
+		
+		// Check path length
+		if ((strlen(pathPrefix[GCSettings.LoadMethod]) + strlen(GCSettings.BorderFolder) + strlen(loadedname)) >= MAXPATHLEN) {
+			ErrorPrompt("Maximum filepath length reached!");
+			filepath[0] = 0;
+			return false;
+		}
+		
 		StripExt(file, loadedname);
 		sprintf(temppath, "%s%s/%s.png", pathPrefix[GCSettings.LoadMethod], GCSettings.BorderFolder, file);
 	}
