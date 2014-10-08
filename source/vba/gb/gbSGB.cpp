@@ -78,7 +78,6 @@ void gbSgbReset()
   for(i = 1; i < 2048; i+=2) {
     gbSgbBorder[i] = 1 << 2;
   }
-  if (sgbBorderListener) sgbBorderListener(false);
 
   for(i = 0; i < 32; i++) {
     gbPalette[i*4] = (0x1f) | (0x1f << 5) | (0x1f << 10);
@@ -92,7 +91,6 @@ void gbSgbInit()
 {
   gbSgbBorderChar = (u8 *)malloc(32 * 256);
   gbSgbBorder = (u8 *)malloc(2048);
-  if (sgbBorderListener) sgbBorderListener(false);
 
   gbSgbReset();
 }
@@ -108,8 +106,6 @@ void gbSgbShutdown()
     free(gbSgbBorder);
     gbSgbBorder = NULL;
   }
-  
-  if (sgbBorderListener) sgbBorderListener(false);
 }
 
 void gbSgbFillScreen(u16 color)
@@ -301,7 +297,6 @@ void gbSgbPicture()
   gbSgbRenderScreenToBuffer();
 
   memcpy(gbSgbBorder, gbSgbScreenBuffer, 2048);
-  if (sgbBorderListener) sgbBorderListener(true);
 
   u16 *paletteAddr = (u16 *)&gbSgbScreenBuffer[2048];
 

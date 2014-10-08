@@ -910,6 +910,8 @@ void LoadSGBBorder(u8* png_tmp_buf)
 	bool borderLoaded = false;
 	char borderPath[MAXPATHLEN];
 	if (MakeFilePath(borderPath, FILE_BORDER_PNG, inSz ? szpath : browserList[browser.selIndex].filename)) {
+		SGBBorderSavePath = (char*)malloc(strlen(borderPath) + 1);
+		strcpy(SGBBorderSavePath, borderPath);
 		borderLoaded = LoadFile((char*)png_tmp_buf, borderPath, 1024*1024*8, SILENT);
 	}
 	if (!borderLoaded) {
@@ -964,17 +966,8 @@ void LoadSGBBorder(u8* png_tmp_buf)
 		PNGU_ReleaseImageContext(ctx);
 }
 
-// Runs when a SGB border is loaded from the ROM by the emulator (or cleared from memory.)
-void OnSGBBorderLoad(bool state) {
-	SGBBorderLoaded = state;
-	if (state) {
-		SaveSGBBorderOnNextRender = true;
-	}
-}
-
 bool LoadGBROM()
 {
-	sgbBorderListener = &OnSGBBorderLoad;
 	gbEmulatorType = GCSettings.GBHardware;
 
 	if (browserList[browser.selIndex].length > 1024*1024*8) {
@@ -1103,9 +1096,14 @@ bool LoadVBAROM()
 	VMClose(); // cleanup GBA memory
 	gbCleanUp(); // cleanup GB memory
 	
+	SGBBorderLoadedFromGame = false;
 	if (SGBDefaultBorder != NULL) {
 		free(SGBDefaultBorder);
 		SGBDefaultBorder = NULL;
+	}
+	if (SGBBorderSavePath != NULL) {
+		free(SGBBorderSavePath);
+		SGBBorderSavePath = NULL;
 	}
 
 	if(cartridgeType == 2)

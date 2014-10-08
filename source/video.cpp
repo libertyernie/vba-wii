@@ -16,6 +16,9 @@
 #include <string.h>
 #include <unistd.h>
 
+#include <sys/stat.h>
+#include <errno.h>
+
 #include "vbagx.h"
 #include "menu.h"
 #include "input.h"
@@ -41,9 +44,9 @@ int gameScreenPngSize = 0;
 int screenheight = 480;
 int screenwidth = 640;
 
+char *SGBBorderSavePath = NULL;
 u16 *SGBDefaultBorder = NULL;
-bool SGBBorderLoaded = false;
-bool SaveSGBBorderOnNextRender = false;
+bool SGBBorderLoadedFromGame = false;
 
 /*** 3D GX ***/
 #define DEFAULT_FIFO_SIZE ( 256 * 1024 )
@@ -593,7 +596,7 @@ void GX_Render_Init(int width, int height)
 	vheight = height;
 }
 
-bool borderAreaEmpty(u16* buffer) {
+bool borderAreaEmpty(const u16* buffer) {
 	u16 reference = buffer[0];
 	for (int y=0; y<40; y++) {
 		for (int x=0; x<256; x++) {
@@ -638,6 +641,67 @@ struct TEX0Header {
 	s32 r2;
 	s32 r3;
 };
+
+void SaveSGBBorderIfNoneExists(const void* buffer) {
+	FILE* f = fopen("sd:/test.tex0", "wb");
+	if (f) {
+		struct TEX0Header t;
+		memcpy(&t.tag, "TEX0", 4);
+		t.size = 258*224*2;
+		t.version = 1;
+		t.bresOffset = 0;
+		
+		t.headerLen = 64;
+		t.stringOffset = t.size + t.headerLen + 4;
+		t.hasPalette = 0;
+		t.width = 258;
+		t.height = 224;
+		
+		t.pixelFormat = 4;
+		t.levelOfDetail = 1;
+		t.minLod = 0;
+		t.maxLod = 0;
+		
+		t.origPathOffset = 0;
+		fwrite(&t, 1, 64, f);
+		fwrite(buffer, 1, t.size, f);
+		
+		const char* str = "VBAGXTEXT\0\0\0";
+		u32 len = 9;
+		fwrite(&len, 1, 4, f);
+		fwrite(str, 1, 12, f);
+		fclose(f);
+	}
+	
+	char borderDir[MAXPATHLEN];
+	
+	strcpy(borderDir, SGBBorderSavePath);
+	char* slash = strrchr(borderDir, '/');
+	*slash = '\0';
+	
+	struct stat s;
+	int err1 = stat(borderDir, &s);
+	if (err1 == -1) return;
+	if (!S_ISDIR(s.st_mode)) return;
+	
+	int err2 = stat(SGBBorderSavePath, &s);
+	if (err2 == -1 && errno == ENOENT) {
+		FILE* f = fopen(SGBBorderSavePath, "wb");
+		if (!f) return;
+		
+		void* rgba8 = malloc(256*224*3);
+		IMGCTX pngContext = PNGU_SelectImageFromBuffer(rgba8);
+		if (pngContext != NULL)
+		{
+			PNGU_EncodeFromLinearRGB565(pngContext, 256, 224, buffer, 258);
+			PNGU_ReleaseImageContext(pngContext);
+			fwrite(rgba8, 1, 256*224*3, f);
+		}
+		if (rgba8) free(rgba8);
+		fclose(f);
+	}
+}
+
 /****************************************************************************
 * GX_Render
 *
@@ -676,11 +740,17 @@ void GX_Render(int width, int height, u8 * buffer, int pitch)
 	GX_SetTevOp(GX_TEVSTAGE0, GX_DECAL);
 	GX_SetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD0, GX_TEXMAP0, GX_COLOR0A0);
 	
+	if (!SGBBorderLoadedFromGame && !borderAreaEmpty((u16*)buffer)) {
+		// don't try to load the default border anymore
+		SGBBorderLoadedFromGame = true;
+		SaveSGBBorderIfNoneExists(buffer);
+	}
+	
 	for (h = 0; h < vheight; h += 4)
 	{
 		for (w = 0; w < vwid2; ++w)
 		{
-			if (!SGBBorderLoaded && (h < 40 || h >= 184 || w < 12 || w >= 52)) {
+			if (!SGBBorderLoadedFromGame && (h < 40 || h >= 184 || w < 12 || w >= 52)) {
 				*dst++ = *sgb++;
 				*dst++ = *sgb++;
 				*dst++ = *sgb++;
@@ -716,39 +786,6 @@ void GX_Render(int width, int height, u8 * buffer, int pitch)
 		}
 	}
 	
-	if (SaveSGBBorderOnNextRender) {
-		SaveSGBBorderOnNextRender = false;
-		FILE* f = fopen("sd:/test.tex0", "wb");
-		if (f) {
-			struct TEX0Header t;
-			memcpy(&t.tag, "TEX0", 4);
-			t.size = 256*224*2;
-			t.version = 1;
-			t.bresOffset = 0;
-			
-			t.headerLen = 64;
-			t.stringOffset = t.size + t.headerLen + 4;
-			t.hasPalette = 0;
-			t.width = 256;
-			t.height = 224;
-			
-			t.pixelFormat = 4;
-			t.levelOfDetail = 1;
-			t.minLod = 0;
-			t.maxLod = 0;
-			
-			t.origPathOffset = 0;
-			fwrite(&t, 1, 64, f);
-			fwrite(texturemem, 1, t.size, f);
-			
-			const char* str = "BORDER\0\0";
-			u32 len = 6;
-			fwrite(&len, 1, 4, f);
-			fwrite(str, 1, 8, f);
-			fclose(f);
-		}
-	}
-
 	// load texture into GX
 	DCFlushRange(texturemem, texturesize);
 
