@@ -805,3 +805,38 @@ int PNGU_EncodeFromEFB (IMGCTX ctx, u32 width, u32 height)
 	free(tmpbuffer);
 	return res;
 }
+
+// Added by libertyernie
+int PNGU_EncodeFromLinearRGB565 (IMGCTX ctx, u32 width, u32 height, const void* buffer, int rowlength)
+{
+	int res;
+	u32 x, y, tmpy1, tmpxy;
+
+	u16 * src = (u16 *)buffer;
+	unsigned char * tmpbuffer = malloc(width*height*3);
+
+	if(!tmpbuffer)
+		return PNGU_LIB_ERROR;
+
+	for(y=0; y < height; y++)
+	{
+		tmpy1 = y * width * 3;
+
+		for(x=0; x < width; x++)
+		{
+			tmpxy = x * 3 + tmpy1;
+			u16 color = *src++;
+			tmpbuffer[tmpxy  ] = (color >> 11) << 3; // R
+			tmpbuffer[tmpxy+1] = ((color >> 6) & 31) << 3; // G - discard least significant byte
+			tmpbuffer[tmpxy+2] = (color & 31) << 3; // B
+		}
+		
+		if (rowlength > width) {
+			src += (rowlength - width);
+		}
+	}
+
+	res = PNGU_EncodeFromRGB (ctx, width, height, tmpbuffer, 0);
+	free(tmpbuffer);
+	return res;
+}
