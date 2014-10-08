@@ -604,7 +604,7 @@ void FixInvalidSettings()
 		GCSettings.SFXVolume = 40;
 	if(GCSettings.language < 0 || GCSettings.language >= LANG_LENGTH)
 		GCSettings.language = LANG_ENGLISH;
-	if(!(GCSettings.render >= 0 && GCSettings.render < 3))
+	if(!(GCSettings.render >= 0 && GCSettings.render < 5))
 		GCSettings.render = 1;
 	if(!(GCSettings.videomode >= 0 && GCSettings.videomode < 5))
 		GCSettings.videomode = 0;

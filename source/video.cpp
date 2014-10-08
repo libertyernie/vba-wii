@@ -164,7 +164,7 @@ static inline void draw_init(void)
 
 	GX_InitTexObj(&texobj, texturemem, vwidth, vheight, GX_TF_RGB565,
 		GX_CLAMP, GX_CLAMP, GX_FALSE);
-	if (!(GCSettings.render&1))
+	if (GCSettings.render == 2)
 		GX_InitTexObjLOD(&texobj,GX_NEAR,GX_NEAR_MIP_NEAR,2.5,9.0,0.0,GX_FALSE,GX_FALSE,GX_ANISO_1); // original/unfiltered video mode: force texture filtering OFF
 }
 
@@ -250,7 +250,7 @@ static inline void draw_cursor(Mtx v)
 
 	GX_InitTexObj(&texobj, texturemem, vwidth, vheight, GX_TF_RGB565,
 		GX_CLAMP, GX_CLAMP, GX_FALSE);
-	if (!(GCSettings.render&1))
+	if (GCSettings.render == 2)
 		GX_InitTexObjLOD(&texobj,GX_NEAR,GX_NEAR_MIP_NEAR,2.5,9.0,0.0,GX_FALSE,GX_FALSE,GX_ANISO_1); // original/unfiltered video mode: force texture filtering OFF
 }
 #endif
@@ -541,7 +541,13 @@ ResetVideo_Emu ()
 
 	GX_SetDispCopySrc (0, 0, rmode->fbWidth, rmode->efbHeight);
 	GX_SetDispCopyDst (rmode->fbWidth, rmode->xfbHeight);
-	GX_SetCopyFilter (rmode->aa, rmode->sample_pattern, (GCSettings.render == 1) ? GX_TRUE : GX_FALSE, rmode->vfilter);	// deflickering filter only for filtered mode
+	u8 sharp[7] = {0,0,21,22,21,0,0};
+	u8 soft[7] = {8,8,10,12,10,8,8};
+	u8* vfilter =
+		GCSettings.render == 3 ? sharp
+		: GCSettings.render == 4 ? soft
+		: rmode->vfilter;
+	GX_SetCopyFilter (rmode->aa, rmode->sample_pattern, (GCSettings.render != 2) ? GX_TRUE : GX_FALSE, vfilter);	// deflickering filter only for filtered mode
 
 	GX_SetFieldMode (rmode->field_rendering, ((rmode->viHeight == 2 * rmode->xfbHeight) ? GX_ENABLE : GX_DISABLE));
 	
@@ -560,7 +566,7 @@ ResetVideo_Emu ()
 	// reinitialize texture
 	GX_InvalidateTexAll ();
 	GX_InitTexObj (&texobj, texturemem, vwidth, vheight, GX_TF_RGB565, GX_CLAMP, GX_CLAMP, GX_FALSE);	// initialize the texture obj we are going to use
-	if (!(GCSettings.render&1))
+	if (GCSettings.render == 2)
 		GX_InitTexObjLOD(&texobj,GX_NEAR,GX_NEAR_MIP_NEAR,2.5,9.0,0.0,GX_FALSE,GX_FALSE,GX_ANISO_1); // original/unfiltered video mode: force texture filtering OFF
 
 	GX_Flush();

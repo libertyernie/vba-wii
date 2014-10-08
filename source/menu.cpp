@@ -2825,7 +2825,7 @@ static int MenuSettingsVideo()
 		{
 			case 0:
 				GCSettings.render++;
-				if (GCSettings.render > 2)
+				if (GCSettings.render > 4)
 					GCSettings.render = 1;
 				break;
 
@@ -2886,9 +2886,13 @@ static int MenuSettingsVideo()
 			if (GCSettings.render == 0)
 				sprintf (options.value[0], "Original");
 			else if (GCSettings.render == 1)
-				sprintf (options.value[0], "Filtered");
+				sprintf (options.value[0], "Filtered (Auto)");
 			else if (GCSettings.render == 2)
 				sprintf (options.value[0], "Unfiltered");
+			else if (GCSettings.render == 3)
+				sprintf (options.value[0], "Filtered (Sharp)");
+			else if (GCSettings.render == 4)
+				sprintf (options.value[0], "Filtered (Soft)");
 
 			if (GCSettings.scaling == 0)
 				sprintf (options.value[1], "Maintain Aspect Ratio");
