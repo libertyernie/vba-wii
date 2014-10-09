@@ -16,6 +16,9 @@
 #include <malloc.h>
 #include <ogc/lwp_watchdog.h>
 
+#include <sys/stat.h>
+#include <errno.h>
+
 #include "vbagx.h"
 #include "fileop.h"
 #include "filebrowser.h"
@@ -903,68 +906,116 @@ void LoadPatch()
 	FreeSaveBuffer ();
 }
 
-extern bool gbUpdateSizes();
-
-void LoadSGBBorder(u8* png_tmp_buf)
-{
-	bool borderLoaded = false;
-	char borderPath[MAXPATHLEN];
-	if (MakeFilePath(borderPath, FILE_BORDER_PNG, inSz ? szpath : browserList[browser.selIndex].filename)) {
-		SGBBorderSavePath = (char*)malloc(strlen(borderPath) + 1);
-		strcpy(SGBBorderSavePath, borderPath);
-		borderLoaded = LoadFile((char*)png_tmp_buf, borderPath, 1024*1024*8, SILENT);
-	}
-	if (!borderLoaded) {
-		// Try default border.png
-		if (MakeFilePath(borderPath, FILE_BORDER_PNG)) {
-			borderLoaded = LoadFile((char*)png_tmp_buf, borderPath, 1024*1024*8, SILENT);
-		}
-	}
-	if (!borderLoaded) return;
+void SaveSGBBorderIfNoneExists(const void* buffer) {
+	char* borderPath = NULL;
+	FILE* f = NULL;
+	void* rgba8 = NULL;
+	IMGCTX pngContext = NULL;
 	
+	int err;
+	
+	struct stat s;
+	borderPath = AllocAndGetSGBBorderPath(NULL);
+	
+	char* slash = strrchr(borderPath, '/');
+	*slash = '\0'; // cut string off at directory name
+	
+	err = stat(borderPath, &s);
+	if (err == -1) goto cleanup;
+	if (!S_ISDIR(s.st_mode)) goto cleanup;
+	
+	*slash = '/'; // restore slash, bring filename back
+	
+	err = stat(borderPath, &s);
+	if (err != -1 || errno != ENOENT) goto cleanup;
+	
+	f = fopen(borderPath, "wb");
+	if (!f) goto cleanup;
+	
+	rgba8 = malloc(256*224*3);
+	if (!rgba8) goto cleanup;
+	pngContext = PNGU_SelectImageFromBuffer(rgba8);
+	if (pngContext == NULL) goto cleanup;
+	
+	PNGU_EncodeFromLinearRGB565(pngContext, 256, 224, buffer, 258);
+	fwrite(rgba8, 1, 256*224*3, f);
+	
+cleanup:
+	if (borderPath) free(borderPath);
+	if (f) fclose(f);
+	if (rgba8) free(rgba8);
+	if (pngContext) PNGU_ReleaseImageContext(pngContext);
+}
+
+char* AllocAndGetSGBBorderPath(const char* title) {
+	const char* method = pathPrefix[GCSettings.LoadMethod];
+	const char* folder = GCSettings.BorderFolder;
+	
+	// If no title was passed in, reuse the method from goombarom.cpp to get the rom title
+	if (title == NULL) title = gb_get_title(gbRom, NULL);
+	
+	size_t length = strlen(method) + strlen(folder) + strlen(title) + 6;
+	char* path = (char*)malloc(length);
+	if (path) sprintf(path, "%s%s/%s.png", method, folder, title);
+	return path;
+}
+
+void LoadSGBBorder()
+{
+	void* png_tmp_buf = malloc(256*256*3); // PNG file should never be bigger than uncompressed RGBA8
+	char* borderPath = AllocAndGetSGBBorderPath(NULL);
 	PNGUPROP imgProp;
 	IMGCTX ctx = NULL;
-	do {
-		ctx = PNGU_SelectImageFromBuffer(png_tmp_buf);
-		
-		if (ctx == NULL) {
-			char error[1024]; error[1023] = 0;
-			snprintf(error, 1023, "Error reading %s", borderPath);
-			ErrorPrompt(error);
-			break;
-		}
-		
-		int r = PNGU_GetImageProperties(ctx, &imgProp);
-		if (r != PNGU_OK) {
-			char error[1024]; error[1023] = 0;
-			snprintf(error, 1023, "PNGU properties error (%d): %s", r, borderPath);
-			ErrorPrompt(error);
-			break;
-		}
-		
-		if (imgProp.imgWidth != 256 || imgProp.imgHeight != 224) {
-			char error[1024]; error[1023] = 0;
-			snprintf(error, 1023, "Wrong size (should be 256x224): %s", borderPath);
-			ErrorPrompt(error);
-			break;
-		}
-		
-		SGBDefaultBorder = (u16*)malloc(256*224*2);
-		r = PNGU_DecodeTo4x4RGB565 (ctx, imgProp.imgWidth, imgProp.imgHeight, SGBDefaultBorder);
-		if (r != PNGU_OK) {
-			char error[1024]; error[1023] = 0;
-			snprintf(error, 1023, "PNGU decoding error (%d): %s", r, borderPath);
-			ErrorPrompt(error);
-			free(SGBDefaultBorder);
-			SGBDefaultBorder = NULL;
-			break;
-		}
-	} while (false);
+	char error[1024]; error[1023] = 0;
+	int r;
 	
-	// Cleanup
-	if (ctx != NULL)
-		PNGU_ReleaseImageContext(ctx);
+	bool borderLoaded = LoadFile((char*)png_tmp_buf, borderPath, 256*256*3, SILENT);
+	if (!borderLoaded) {
+		// Try default border.png
+		free(borderPath);
+		borderPath = AllocAndGetSGBBorderPath("default");
+		borderLoaded = LoadFile((char*)png_tmp_buf, borderPath, 256*256*3, SILENT);
+	}
+	if (!borderLoaded) goto cleanup;
+	
+	ctx = PNGU_SelectImageFromBuffer(png_tmp_buf);
+	
+	if (ctx == NULL) {
+		snprintf(error, 1023, "Error reading %s", borderPath);
+		ErrorPrompt(error);
+		goto cleanup;
+	}
+	
+	r = PNGU_GetImageProperties(ctx, &imgProp);
+	if (r != PNGU_OK) {
+		snprintf(error, 1023, "PNGU properties error (%d): %s", r, borderPath);
+		ErrorPrompt(error);
+		goto cleanup;
+	}
+	
+	if (imgProp.imgWidth != 256 || imgProp.imgHeight != 224) {
+		snprintf(error, 1023, "Wrong size (should be 256x224): %s", borderPath);
+		ErrorPrompt(error);
+		goto cleanup;
+	}
+	
+	SGBDefaultBorder = (u16*)malloc(256*224*2);
+	r = PNGU_DecodeTo4x4RGB565 (ctx, imgProp.imgWidth, imgProp.imgHeight, SGBDefaultBorder);
+	if (r != PNGU_OK) {
+		snprintf(error, 1023, "PNGU decoding error (%d): %s", r, borderPath);
+		ErrorPrompt(error);
+		free(SGBDefaultBorder);
+		SGBDefaultBorder = NULL;
+		goto cleanup;
+	}
+	
+cleanup:
+	if (png_tmp_buf) free(png_tmp_buf);
+	if (borderPath) free(borderPath);
+	if (ctx) PNGU_ReleaseImageContext(ctx);
 }
+
+extern bool gbUpdateSizes();
 
 bool LoadGBROM()
 {
@@ -982,9 +1033,6 @@ bool LoadGBROM()
 	bios = (u8 *)calloc(1,0x100);
 
 	systemSaveUpdateCounter = SYSTEM_SAVE_NOT_UPDATED;
-	
-	// Temporarily store PNG data in the area allocated for the ROM, convert to RGB565
-	LoadSGBBorder(gbRom);
 
 	if(!inSz)
 	{
@@ -1017,6 +1065,8 @@ bool LoadGBROM()
 			return false;
 		}
 	}
+	
+	LoadSGBBorder();
 
 	if(gbRomSize <= 0)
 		return false;
@@ -1096,15 +1146,11 @@ bool LoadVBAROM()
 	VMClose(); // cleanup GBA memory
 	gbCleanUp(); // cleanup GB memory
 	
-	SGBBorderLoadedFromGame = false;
 	if (SGBDefaultBorder != NULL) {
 		free(SGBDefaultBorder);
 		SGBDefaultBorder = NULL;
 	}
-	if (SGBBorderSavePath != NULL) {
-		free(SGBBorderSavePath);
-		SGBBorderSavePath = NULL;
-	}
+	SGBBorderLoadedFromGame = true; // don't try to load
 
 	if(cartridgeType == 2)
 	{
@@ -1133,6 +1179,7 @@ bool LoadVBAROM()
 			gbBorderLineSkip = 256;
 			gbBorderColumnSkip = 48;
 			gbBorderRowSkip = 40;
+			SGBBorderLoadedFromGame = false; // try to load
 		}
 		else
 		{

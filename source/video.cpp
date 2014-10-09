@@ -16,9 +16,6 @@
 #include <string.h>
 #include <unistd.h>
 
-#include <sys/stat.h>
-#include <errno.h>
-
 #include "vbagx.h"
 #include "menu.h"
 #include "input.h"
@@ -44,7 +41,6 @@ int gameScreenPngSize = 0;
 int screenheight = 480;
 int screenwidth = 640;
 
-char *SGBBorderSavePath = NULL;
 u16 *SGBDefaultBorder = NULL;
 bool SGBBorderLoadedFromGame = false;
 
@@ -619,89 +615,6 @@ bool borderAreaEmpty(const u16* buffer) {
 	return true;
 }
 
-struct TEX0Header {
-	char tag[4];
-	s32 size;
-	s32 version;
-	s32 bresOffset;
-	
-	s32 headerLen;
-	s32 stringOffset;
-	s32 hasPalette;
-	s16 width;
-	s16 height;
-	
-	s32 pixelFormat;
-	s32 levelOfDetail;
-	f32 minLod;
-	f32 maxLod;
-	
-	s32 origPathOffset;
-	s32 r1;
-	s32 r2;
-	s32 r3;
-};
-
-void SaveSGBBorderIfNoneExists(const void* buffer) {
-	FILE* f = fopen("sd:/test.tex0", "wb");
-	if (f) {
-		struct TEX0Header t;
-		memcpy(&t.tag, "TEX0", 4);
-		t.size = 258*224*2;
-		t.version = 1;
-		t.bresOffset = 0;
-		
-		t.headerLen = 64;
-		t.stringOffset = t.size + t.headerLen + 4;
-		t.hasPalette = 0;
-		t.width = 258;
-		t.height = 224;
-		
-		t.pixelFormat = 4;
-		t.levelOfDetail = 1;
-		t.minLod = 0;
-		t.maxLod = 0;
-		
-		t.origPathOffset = 0;
-		fwrite(&t, 1, 64, f);
-		fwrite(buffer, 1, t.size, f);
-		
-		const char* str = "VBAGXTEXT\0\0\0";
-		u32 len = 9;
-		fwrite(&len, 1, 4, f);
-		fwrite(str, 1, 12, f);
-		fclose(f);
-	}
-	
-	char borderDir[MAXPATHLEN];
-	
-	strcpy(borderDir, SGBBorderSavePath);
-	char* slash = strrchr(borderDir, '/');
-	*slash = '\0';
-	
-	struct stat s;
-	int err1 = stat(borderDir, &s);
-	if (err1 == -1) return;
-	if (!S_ISDIR(s.st_mode)) return;
-	
-	int err2 = stat(SGBBorderSavePath, &s);
-	if (err2 == -1 && errno == ENOENT) {
-		FILE* f = fopen(SGBBorderSavePath, "wb");
-		if (!f) return;
-		
-		void* rgba8 = malloc(256*224*3);
-		IMGCTX pngContext = PNGU_SelectImageFromBuffer(rgba8);
-		if (pngContext != NULL)
-		{
-			PNGU_EncodeFromLinearRGB565(pngContext, 256, 224, buffer, 258);
-			PNGU_ReleaseImageContext(pngContext);
-			fwrite(rgba8, 1, 256*224*3, f);
-		}
-		if (rgba8) free(rgba8);
-		fclose(f);
-	}
-}
-
 /****************************************************************************
 * GX_Render
 *
@@ -750,7 +663,7 @@ void GX_Render(int width, int height, u8 * buffer, int pitch)
 	{
 		for (w = 0; w < vwid2; ++w)
 		{
-			if (!SGBBorderLoadedFromGame && (h < 40 || h >= 184 || w < 12 || w >= 52)) {
+			if (sgb && !SGBBorderLoadedFromGame && (h < 40 || h >= 184 || w < 12 || w >= 52)) {
 				*dst++ = *sgb++;
 				*dst++ = *sgb++;
 				*dst++ = *sgb++;

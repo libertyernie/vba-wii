@@ -38,7 +38,8 @@ extern u8 * gameScreenPng;
 extern int gameScreenPngSize;
 extern u32 FrameTimer;
 
-extern char* SGBBorderSavePath;
+char *AllocAndGetSGBBorderPath(const char* title);
+void SaveSGBBorderIfNoneExists(const void* buffer);
 extern u16 *SGBDefaultBorder;
 extern bool SGBBorderLoadedFromGame;
 
