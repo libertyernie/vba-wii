@@ -21,12 +21,31 @@ With it you can play GBA/Game Boy Color/Game Boy games on your Wii/GameCube.
 * Compatibility based on VBA-M r1231
 * MEM2 ROM Storage for fast access
 * Auto frame skip (optional) for those core heavy games
-* Native support for Goomba / Goomba Color ROMs and SRAM
 * Turbo speed, video zooming, widescreen, and unfiltered video options
+
+-=[ New since 2014 ]=-
+
+* Native loading/saving of ROMS and SRAM from Goomba (a GB emulator for GBA)
+* Improved video rendering from RetroArch
+* Screenshots can be displayed on the main menu
+* Fixed pixel ratio mode (1x, 2x, and 3x)
+* Super Game Boy borders (from game or custom)
 
 ×—–­—–­—–­—–­ –­—–­—–­—–­—–­—–­—–­—–­—–­—–­— ­—–­—–­—–­—–­—–­—–­—–­—-­—–­-–•¬
 |0O×øo·                         UPDATE HISTORY                        ·oø×O0|
 `¨•¨¨¨¨¨ ¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨ ¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨ ¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨ ¨¨¨¨¨¨¨¨¨¨¨¨¨'
+
+[2.3.1 - TBD] - libertyernie
+
+* Super Game Boy border support
+  * Borders can be loaded from (and are automatically saved to) PNG files
+* Options added for Game Boy hardware (GB/SGB/GBC/auto) and fixed pixel mode
+* Real-time clock fixes for GB/GBC games, including Pokémon G/S/C
+  * RTC data in save file stored as little-endian
+  * Option added for UTC offset in the main menu (only required if you use the
+    same SRAM on other, time-zone-aware platforms)
+* New option for selecting "sharp" or "soft" filtering settings
+  * "Sharp" was the default for 480p, "soft" was the default for 480i
 
 [2.3.0 - September 10, 2014] - libertyernie
 
