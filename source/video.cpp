@@ -491,7 +491,10 @@ static inline void UpdateScaling()
 		fixed = GCSettings.gbFixed;
 	}
 
-	if (!fixed) {
+	if (fixed) {
+		xscale = 320;
+		yscale = 240;
+	} else {
 		xscale *= zoomHor;
 		yscale *= zoomVert;
 	}
