@@ -508,10 +508,15 @@ static inline void UpdateScaling()
 	memset(&view, 0, sizeof(Mtx));
 	guLookAt(view, &cam.pos, &cam.up, &cam.view);
 	if (fixed) {
-		int vw = vwidth * fixed;
-		int vh = vheight * fixed;
-		int vx = (vmode->fbWidth - vw) / 2;
-		int vy = (vmode->efbHeight - vh) / 2;
+		fixed++;
+		int ratio = fixed >> 1;
+		bool widescreen = fixed & 1;
+	
+		float vw = vwidth * ratio;
+		if (widescreen) vw *= 4.0 / 3.0;
+		float vh = vheight * ratio;
+		float vx = (vmode->fbWidth - vw) / 2;
+		float vy = (vmode->efbHeight - vh) / 2;
 		GX_SetViewport(vx, vy, vw, vh, 0, 1);
 	} else {
 		GX_SetViewport(0, 0, vmode->fbWidth, vmode->efbHeight, 0, 1);
@@ -677,7 +682,7 @@ void GX_Render(int width, int height, u8 * buffer, int pitch)
 				*dst++ = *src2++;
 				*dst++ = *src3++;
 				*dst++ = *src4++;
-				sgb += 4;
+				if (sgb) sgb += 4;
 			}
 		}
 

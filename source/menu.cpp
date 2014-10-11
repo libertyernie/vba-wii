@@ -2847,11 +2847,11 @@ static int MenuSettingsVideo()
 			case 3:
 				if(IsGBAGame()) {
 					GCSettings.gbaFixed++;
-					if(GCSettings.gbaFixed > 3)
+					if(GCSettings.gbaFixed > 6)
 						GCSettings.gbaFixed = 0;
 				} else {
 					GCSettings.gbFixed++;
-					if(GCSettings.gbFixed > 3)
+					if(GCSettings.gbFixed > 6)
 						GCSettings.gbFixed = 0;
 				}
 				break;
@@ -2903,19 +2903,27 @@ static int MenuSettingsVideo()
 			else if (GCSettings.scaling == 3)
 				sprintf (options.value[1], "16:9 Correction");
 
+			int fixed;
 			if(IsGBAGame()) {
 				sprintf (options.value[2], "%.2f%%, %.2f%%", GCSettings.gbaZoomHor*100, GCSettings.gbaZoomVert*100);
-				if (GCSettings.gbaFixed)
-					sprintf (options.value[3], "%dx", GCSettings.gbaFixed);
-				else
-					sprintf (options.value[3], "Disabled");
+				fixed = GCSettings.gbaFixed;
 			} else {
 				sprintf (options.value[2], "%.2f%%, %.2f%%", GCSettings.gbZoomHor*100, GCSettings.gbZoomVert*100);
-				if (GCSettings.gbFixed)
-					sprintf (options.value[3], "%dx", GCSettings.gbFixed);
-				else
-					sprintf (options.value[3], "Disabled");
+				fixed = GCSettings.gbFixed;
 			}
+
+			if (fixed) {
+				int setting = fixed + 1;
+				int ratio = setting >> 1;
+				const char* widescreen = (setting & 1)
+					? "(16:9 Correction)"
+					: "";
+				
+				sprintf (options.value[3], "%dx %s", ratio, widescreen);
+			} else {
+				sprintf (options.value[3], "Disabled");
+			}
+
 			sprintf (options.value[4], "%d, %d", GCSettings.xshift, GCSettings.yshift);
 
 			switch(GCSettings.videomode)
