@@ -516,7 +516,7 @@ static inline void UpdateScaling()
 		bool widescreen = fixed & 1;
 	
 		float vw = vwidth * ratio;
-		if (widescreen) vw *= 4.0 / 3.0;
+		if (widescreen) vw /= 4.0 / 3.0;
 		float vh = vheight * ratio;
 		float vx = (vmode->fbWidth - vw) / 2;
 		float vy = (vmode->efbHeight - vh) / 2;
