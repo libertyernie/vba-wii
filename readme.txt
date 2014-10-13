@@ -39,7 +39,13 @@ With it you can play GBA/Game Boy Color/Game Boy games on your Wii/GameCube.
 
 * Super Game Boy border support
   * Borders can be loaded from (and are automatically saved to) PNG files
-* Options added for Game Boy hardware (GB/SGB/GBC/auto) and fixed pixel mode
+  * Any border loaded from the game itself will override the custom PNG border
+* Option added to select Game Boy hardware (GB/SGB/GBC/auto)
+* Fixed pixel ratio mode added
+  * Overrides zoom and aspect ratio settings
+  * "16:9 Correction" versions will match the pixel ratio along the Y axis
+    only, and resize the picture horizontally. You can get a better picture by
+	using the regular 1x/2x/3x modes and setting your TV to a 4:3 ratio.
 * Real-time clock fixes for GB/GBC games, including Pokémon G/S/C
   * RTC data in save file stored as little-endian
   * Option added for UTC offset in the main menu (only required if you use the
