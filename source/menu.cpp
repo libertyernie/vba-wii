@@ -2913,9 +2913,9 @@ static int MenuSettingsVideo()
 			}
 
 			if (fixed) {
-				int setting = setting / 10;
-				int ratio = setting % 10;
-				const char* widescreen = setting
+				int w = fixed / 10;
+				int ratio = fixed % 10;
+				const char* widescreen = w
 					? "(16:9 Correction)"
 					: "";
 				
