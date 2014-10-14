@@ -1049,12 +1049,13 @@ bool LoadGBROM()
 	}
 	
 	const void* firstRom = gb_first_rom(gbRom, gbRomSize);
+	const void* secondRom = gb_next_rom(gbRom, gbRomSize, firstRom);
 	if (firstRom != NULL && firstRom != gbRom) {
 		char msgbuf[32];
 		const void* rom;
 		for (rom = firstRom; rom != NULL; rom = gb_next_rom(gbRom, gbRomSize, rom)) {
 			sprintf(msgbuf, "Load %s?", gb_get_title(rom, NULL));
-			if (YesNoPrompt(msgbuf, true)) {
+			if (secondRom == NULL || YesNoPrompt(msgbuf, true)) {
 				gbRomSize = gb_rom_size(rom);
 				memmove(gbRom, rom, gbRomSize);
 				break;
