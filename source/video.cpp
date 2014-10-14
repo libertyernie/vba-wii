@@ -511,9 +511,8 @@ static inline void UpdateScaling()
 	memset(&view, 0, sizeof(Mtx));
 	guLookAt(view, &cam.pos, &cam.up, &cam.view);
 	if (fixed) {
-		fixed++;
-		int ratio = fixed >> 1;
-		bool widescreen = fixed & 1;
+		int ratio = fixed % 10;
+		bool widescreen = fixed / 10;
 	
 		float vw = vwidth * ratio;
 		if (widescreen) vw /= 4.0 / 3.0;

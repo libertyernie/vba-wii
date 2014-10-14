@@ -2847,11 +2847,11 @@ static int MenuSettingsVideo()
 			case 3:
 				if(IsGBAGame()) {
 					GCSettings.gbaFixed++;
-					if(GCSettings.gbaFixed > 6)
+					if(GCSettings.gbaFixed > 3)
 						GCSettings.gbaFixed = 0;
 				} else {
 					GCSettings.gbFixed++;
-					if(GCSettings.gbFixed > 6)
+					if(GCSettings.gbFixed > 3)
 						GCSettings.gbFixed = 0;
 				}
 				break;
@@ -2913,9 +2913,9 @@ static int MenuSettingsVideo()
 			}
 
 			if (fixed) {
-				int setting = fixed + 1;
-				int ratio = setting >> 1;
-				const char* widescreen = (setting & 1)
+				int setting = setting / 10;
+				int ratio = setting % 10;
+				const char* widescreen = setting
 					? "(16:9 Correction)"
 					: "";
 				
@@ -2979,8 +2979,8 @@ static int MenuSettingsEmulation()
 	OptionList options;
 
 	sprintf(options.name[i++], "Hardware (GB/GBC)");
-	sprintf(options.name[i++], "Offset from UTC (hours)");
 	sprintf(options.name[i++], "Super Game Boy border");
+	sprintf(options.name[i++], "Offset from UTC (hours)");
 	options.length = i;
 
 	for(i=0; i < options.length; i++)
@@ -3038,14 +3038,14 @@ static int MenuSettingsEmulation()
 				break;
 			
 			case 1:
+				GCSettings.SGBBorder ^= 1;
+				break;
+			
+			case 2:
 				GCSettings.OffsetMinutesUTC += 15;
 				if (GCSettings.OffsetMinutesUTC > 60*14) {
 					GCSettings.OffsetMinutesUTC = -60*12;
 				}
-				break;
-			
-			case 2:
-				GCSettings.SGBBorder ^= 1;
 				break;
 		}
 
@@ -3066,9 +3066,9 @@ static int MenuSettingsEmulation()
 			else if (GCSettings.GBHardware == 5)
 				sprintf (options.value[0], "Super Game Boy 2");
 			
-			sprintf (options.value[1], "%+.2f", GCSettings.OffsetMinutesUTC / 60.0);
+			sprintf (options.value[1], GCSettings.SGBBorder ? "On" : "Off");
 			
-			sprintf (options.value[2], GCSettings.SGBBorder ? "On" : "Off");
+			sprintf (options.value[2], "%+.2f", GCSettings.OffsetMinutesUTC / 60.0);
 
 			optionBrowser.TriggerUpdate();
 		}
