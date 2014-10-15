@@ -580,6 +580,30 @@ to the main menu and B again to return to the game.
 A+B, Spacebar, or right analog stick: fast forward
 Right analog stick: zoom (if enabled)
 
+-=[ Super Game Boy borders ]=-
+
+VBA-GX has supported Super Game Boy borders since 2.3.1. You can enable this
+feature in the Emulation settings on the main menu.
+
+Borders can be loaded from two locations:
+* PNG files in the borders folder (by default, /vbagx/borders)
+* The game itself
+
+Borders will only be loaded from the game itself when the emulator is running
+in Super Game Boy mode. (You can use the Emulation settings on the main menu to
+force SGB mode even for Game Boy Color games.) Whenever a border is loaded
+from the game, it will override the border loaded from the PNG file.
+
+In addition, if the borders folder exists but there is no border for the game,
+the first border loaded from the game will be written to a PNG file so it can
+be loaded in the future (even in Game Boy Color mode.) This means after you
+run a game once in SGB mode, you can then use the same border in GBC mode.
+
+For both loading and saving, the PNG filename is [TITLE].png, where [TITLE]
+is the ROM title defined at 0x134. For example, POKEMON_SFXAAXE.png will be
+loaded for Pokémon Silver. If no PNG file by that name exists, VBA-GX will
+try loading default.png instead.
+
 -=[ Match Wii Controls ]=-
 
 Special Wii controls exist for the following games:
@@ -1039,8 +1063,8 @@ right analog stick = fast forward
 
 Turn "Match Wii Controls" ON to use these controls.
 
-There's no Kid Dracula game for the Wii, but this is a good opportunity to
-show off some fancy memory-swapping tricks. -libertyernie
+(There's no Kid Dracula game for the Wii, but this is a good opportunity to
+show off some fancy memory-swapping tricks. -libertyernie)
 
 The Kid Dracula Wii controls (remote + nunchuk) are:
 ====================================================
