@@ -9,12 +9,14 @@
  ***************************************************************************/
 
 #include <gccore.h>
+#include <ogc/machine/processor.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ogcsys.h>
 #include <unistd.h>
 #include <wiiuse/wpad.h>
+#include <wupc/wupc.h>
 #include <sys/iosupport.h>
 
 #ifdef HW_RVL
@@ -51,6 +53,7 @@ int ShutdownRequested = 0;
 int ResetRequested = 0;
 int ExitRequested = 0;
 char appPath[1024] = { 0 };
+
 
 
 /****************************************************************************
@@ -310,6 +313,14 @@ extern "C" {
 ****************************************************************************/
 int main(int argc, char *argv[])
 {
+
+	if ( (*(u32*)(0xCD8005A0) >> 16 ) == 0xCAFE ) // Wii U
+	{
+	/* vWii widescreen patch by tueidj */
+	write32(0xd8006a0, 0x30000004), mask32(0xd8006a8, 0, 2);
+	}
+
+
 	#ifdef HW_RVL
 	L2Enhance();
 	
@@ -341,6 +352,7 @@ int main(int argc, char *argv[])
 	SYS_SetPowerCallback(ShutdownCB);
 	SYS_SetResetCallback(ResetCB);
 	
+	WUPC_Init();
 	WPAD_Init();
 	WPAD_SetPowerButtonCallback((WPADShutdownCallback)ShutdownCB);
 	DI_Init();
