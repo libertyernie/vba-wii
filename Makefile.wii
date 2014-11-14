@@ -37,12 +37,12 @@ CFLAGS		=	-g -O3 -Wall $(MACHDEP) $(INCLUDE) \
 				-fomit-frame-pointer \
 				-Wno-unused-parameter -Wno-strict-aliasing -Wno-parentheses
 CXXFLAGS	=	$(CFLAGS)
-LDFLAGS		=	-g $(MACHDEP) -Wl,-Map,$(notdir $@).map
+LDFLAGS		=	-g $(MACHDEP) -Wl,-Map,$(notdir $@).map,-wrap,wiiuse_register
 
 #---------------------------------------------------------------------------------
 # any extra libraries we wish to link with
 #---------------------------------------------------------------------------------
-LIBS	:=	-ldi -liso9660 -lpng -lmxml	-lfat -lwiiuse -lz -lbte -lasnd -logc \
+LIBS	:=	-ldi -liso9660 -lpng -lmxml	-lfat -lwiiuse -lwupc -lz -lbte -lasnd -logc \
 			-lvorbisidec -lfreetype -ltinysmb
 
 #---------------------------------------------------------------------------------

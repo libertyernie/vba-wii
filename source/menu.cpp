@@ -14,6 +14,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <wiiuse/wpad.h>
+#include <wupc/wupc.h>
 #include <sys/stat.h>
 
 #ifdef HW_RVL
@@ -66,7 +67,7 @@ static GuiSound * exitSound = NULL;
 static GuiWindow * mainWindow = NULL;
 static GuiText * settingText = NULL;
 static GuiText * settingText2 = NULL;
-static int lastMenu = MENU_NONE;
+//static int lastMenu = MENU_NONE;
 static int mapMenuCtrl = 0;
 
 static lwp_t guithread = LWP_THREAD_NULL;
@@ -779,7 +780,7 @@ static void WindowCredits(void * ptr)
 
 	txt[i] = new GuiText("Coding (since 2014)");
 	txt[i]->SetPosition(40,y); i++;
-	txt[i] = new GuiText("libertyernie");
+	txt[i] = new GuiText("libertyernie & Glitch");
 	txt[i]->SetPosition(335,y); i++; y+=24;
 	txt[i] = new GuiText("Menu screenshot support");
 	txt[i]->SetPosition(40,y); i++;
@@ -876,18 +877,20 @@ static void WindowCredits(void * ptr)
 
 		Menu_Render();
 
-		if((userInput[0].wpad->btns_d || userInput[0].pad.btns_d) ||
-		   (userInput[1].wpad->btns_d || userInput[1].pad.btns_d) ||
-		   (userInput[2].wpad->btns_d || userInput[2].pad.btns_d) ||
-		   (userInput[3].wpad->btns_d || userInput[3].pad.btns_d)){ 
-			exit = true;
-		}
+		if((userInput[0].wpad->btns_d || userInput[0].pad.btns_d || userInput[0].wupcdata.btns_d) ||
+		   (userInput[1].wpad->btns_d || userInput[1].pad.btns_d || userInput[1].wupcdata.btns_d) ||
+		   (userInput[2].wpad->btns_d || userInput[2].pad.btns_d || userInput[2].wupcdata.btns_d) ||
+		   (userInput[3].wpad->btns_d || userInput[3].pad.btns_d || userInput[3].wupcdata.btns_d))
+		{
+ 			exit = true;
+ 		}
 		usleep(THREAD_SLEEP);
 	}
 
 	// clear buttons pressed
 	for(i=0; i < 4; i++)
 	{
+		userInput[i].wupcdata.btns_d = 0;
 		userInput[i].wpad->btns_d = 0;
 		userInput[i].pad.btns_d = 0;
 	}
@@ -1109,7 +1112,7 @@ extern char DebugStr[50];
  *
  * Menu displayed when returning to the menu from in-game.
  ***************************************************************************/
-static int MenuGame()
+static int MenuGame(int lastMenu)
 {
 	int menu = MENU_NONE;
 
@@ -1403,8 +1406,17 @@ static int MenuGame()
 			}
 			else
 			{
-				newStatus = false;
-				newLevel = 0;
+				struct WUPCData *data = WUPC_Data(i);
+				if(data != NULL)
+				{
+					newStatus = true;
+					newLevel = data->battery;
+				}
+				else
+				{
+					newStatus = false;
+					newLevel = 0;
+				}
 			}
 
 			if(status[i] != newStatus || level[i] != newLevel)
@@ -2276,6 +2288,8 @@ ButtonMappingWindow()
 						break;
 				}
 			}
+			if(pressed == 0)
+				pressed = userInput[0].wupcdata.btns_d;
 		}
 	}
 
@@ -3088,7 +3102,7 @@ static int MenuSettingsEmulation()
 /****************************************************************************
  * MenuSettings
  ***************************************************************************/
-static int MenuSettings()
+static int MenuSettings(GuiTrigger *trigAptr,GuiTrigger *trig2ptr)
 {
 	int menu = MENU_NONE;
 
@@ -3126,8 +3140,8 @@ static int MenuSettings()
 	savingBtn.SetIcon(&fileBtnIcon);
 	savingBtn.SetSoundOver(&btnSoundOver);
 	savingBtn.SetSoundClick(&btnSoundClick);
-	savingBtn.SetTrigger(trigA);
-	savingBtn.SetTrigger(trig2);
+	savingBtn.SetTrigger(trigAptr);
+	savingBtn.SetTrigger(trig2ptr);
 	savingBtn.SetEffectGrow();
 
 	GuiText menuBtnTxt("Menu", 22, (GXColor){0, 0, 0, 255});
@@ -3144,8 +3158,8 @@ static int MenuSettings()
 	menuBtn.SetIcon(&menuBtnIcon);
 	menuBtn.SetSoundOver(&btnSoundOver);
 	menuBtn.SetSoundClick(&btnSoundClick);
-	menuBtn.SetTrigger(trigA);
-	menuBtn.SetTrigger(trig2);
+	menuBtn.SetTrigger(trigAptr);
+	menuBtn.SetTrigger(trig2ptr);
 	menuBtn.SetEffectGrow();
 
 	GuiText networkBtnTxt("Network", 22, (GXColor){0, 0, 0, 255});
@@ -3162,8 +3176,8 @@ static int MenuSettings()
 	networkBtn.SetIcon(&networkBtnIcon);
 	networkBtn.SetSoundOver(&btnSoundOver);
 	networkBtn.SetSoundClick(&btnSoundClick);
-	networkBtn.SetTrigger(trigA);
-	networkBtn.SetTrigger(trig2);
+	networkBtn.SetTrigger(trigAptr);
+	networkBtn.SetTrigger(trig2ptr);
 	networkBtn.SetEffectGrow();
 
 	GuiText emulationBtnTxt("Emulation", 22, (GXColor){0, 0, 0, 255});
@@ -3193,8 +3207,8 @@ static int MenuSettings()
 	backBtn.SetImageOver(&backBtnImgOver);
 	backBtn.SetSoundOver(&btnSoundOver);
 	backBtn.SetSoundClick(&btnSoundClick);
-	backBtn.SetTrigger(trigA);
-	backBtn.SetTrigger(trig2);
+	backBtn.SetTrigger(trigAptr);
+	backBtn.SetTrigger(trig2ptr);;
 	backBtn.SetEffectGrow();
 
 	GuiText resetBtnTxt("Reset Settings", 22, (GXColor){0, 0, 0, 255});
@@ -3208,8 +3222,8 @@ static int MenuSettings()
 	resetBtn.SetImageOver(&resetBtnImgOver);
 	resetBtn.SetSoundOver(&btnSoundOver);
 	resetBtn.SetSoundClick(&btnSoundClick);
-	resetBtn.SetTrigger(trigA);
-	resetBtn.SetTrigger(trig2);
+	resetBtn.SetTrigger(trigAptr);
+	resetBtn.SetTrigger(trig2ptr);
 	resetBtn.SetEffectGrow();
 
 	HaltGui();
@@ -3781,10 +3795,10 @@ static void RGBWindowUpdate(void * ptr, int red, int green, int blue)
 		if (blueAmount>255) blueAmount=255;
 		else if (blueAmount<0) blueAmount=0;
 
-		redText->SetColor((GXColor){redAmount, 0, 0, 255});
-		greenText->SetColor((GXColor){0, greenAmount, 0, 255});
-		blueText->SetColor((GXColor){0, 0, blueAmount, 255});
-		sampleText->SetColor((GXColor){redAmount, greenAmount, blueAmount, 255});
+		redText->SetColor((GXColor){(u8)redAmount, 0, 0, 0xFF});
+		greenText->SetColor((GXColor){0, (u8)greenAmount, 0, 0xFF});
+		blueText->SetColor((GXColor){0, 0, (u8)blueAmount, 0xFF});
+		sampleText->SetColor((GXColor){(u8)redAmount, (u8)greenAmount, (u8)blueAmount, 0xFF});
 
 		char shift[10];
 		sprintf(shift, "%2x", redAmount);
@@ -3918,7 +3932,7 @@ static void PaletteWindow(const char *name)
 	sprintf(shift, "%2x", blueAmount);
 	blueText->SetText(shift);
 
-	sampleText = new GuiText(NULL, 20, (GXColor){redAmount, greenAmount, blueAmount, 255});
+	sampleText = new GuiText(NULL, 20, (GXColor){(u8)redAmount, (u8)greenAmount, (u8)blueAmount, 0xFF});
 	sampleText->SetPosition(+150,0);
 	sampleText->SetText(name);
 
@@ -4290,7 +4304,7 @@ static int MenuPalette()
 			blueAmount = (CurrentPalette.palette[0] >> 0) & 0xFF;
 			PaletteWindow("BG 0");
 			CurrentPalette.palette[0] = redAmount << 16 | greenAmount << 8 | blueAmount;
-			bg0BtnTxt.SetColor((GXColor){redAmount, greenAmount, blueAmount, 255});
+			bg0BtnTxt.SetColor((GXColor){(u8)redAmount, (u8)greenAmount, (u8)blueAmount, 0xFF});
 			bg0Btn.ResetState();
 		}
 		else if(bg1Btn.GetState() == STATE_CLICKED)
@@ -4300,7 +4314,7 @@ static int MenuPalette()
 			blueAmount = (CurrentPalette.palette[1] >> 0) & 0xFF;
 			PaletteWindow("BG 1");
 			CurrentPalette.palette[1] = redAmount << 16 | greenAmount << 8 | blueAmount;
-			bg1BtnTxt.SetColor((GXColor){redAmount, greenAmount, blueAmount, 255});
+			bg1BtnTxt.SetColor((GXColor){(u8)redAmount, (u8)greenAmount, (u8)blueAmount, 0xFF});
 			bg1Btn.ResetState();
 		}
 		else if(bg2Btn.GetState() == STATE_CLICKED)
@@ -4310,7 +4324,7 @@ static int MenuPalette()
 			blueAmount = (CurrentPalette.palette[2] >> 0) & 0xFF;
 			PaletteWindow("BG 2");
 			CurrentPalette.palette[2] = redAmount << 16 | greenAmount << 8 | blueAmount;
-			bg2BtnTxt.SetColor((GXColor){redAmount, greenAmount, blueAmount, 255});
+			bg2BtnTxt.SetColor((GXColor){(u8)redAmount, (u8)greenAmount, (u8)blueAmount, 0xFF});
 			bg2Btn.ResetState();
 		}
 		else if(bg3Btn.GetState() == STATE_CLICKED)
@@ -4320,7 +4334,7 @@ static int MenuPalette()
 			blueAmount = (CurrentPalette.palette[3] >> 0) & 0xFF;
 			PaletteWindow("BG 3");
 			CurrentPalette.palette[3] = redAmount << 16 | greenAmount << 8 | blueAmount;
-			bg3BtnTxt.SetColor((GXColor){redAmount, greenAmount, blueAmount, 255});
+			bg3BtnTxt.SetColor((GXColor){(u8)redAmount, (u8)greenAmount, (u8)blueAmount, 0xFF});
 			bg3Btn.ResetState();
 		}
 		else if(win0Btn.GetState() == STATE_CLICKED)
@@ -4330,7 +4344,7 @@ static int MenuPalette()
 			blueAmount = (CurrentPalette.palette[4] >> 0) & 0xFF;
 			PaletteWindow("WIN 0");
 			CurrentPalette.palette[4] = redAmount << 16 | greenAmount << 8 | blueAmount;
-			win0BtnTxt.SetColor((GXColor){redAmount, greenAmount, blueAmount, 255});
+			win0BtnTxt.SetColor((GXColor){(u8)redAmount, (u8)greenAmount, (u8)blueAmount, 0xFF});
 			win0Btn.ResetState();
 		}
 		else if(win1Btn.GetState() == STATE_CLICKED)
@@ -4340,7 +4354,7 @@ static int MenuPalette()
 			blueAmount = (CurrentPalette.palette[5] >> 0) & 0xFF;
 			PaletteWindow("WIN 1");
 			CurrentPalette.palette[5] = redAmount << 16 | greenAmount << 8 | blueAmount;
-			win1BtnTxt.SetColor((GXColor){redAmount, greenAmount, blueAmount, 255});
+			win1BtnTxt.SetColor((GXColor){(u8)redAmount, (u8)greenAmount, (u8)blueAmount, 0xFF});
 			win1Btn.ResetState();
 		}
 		else if(win2Btn.GetState() == STATE_CLICKED)
@@ -4350,7 +4364,7 @@ static int MenuPalette()
 			blueAmount = (CurrentPalette.palette[6] >> 0) & 0xFF;
 			PaletteWindow("WIN 2");
 			CurrentPalette.palette[6] = redAmount << 16 | greenAmount << 8 | blueAmount;
-			win2BtnTxt.SetColor((GXColor){redAmount, greenAmount, blueAmount, 255});
+			win2BtnTxt.SetColor((GXColor){(u8)redAmount, (u8)greenAmount, (u8)blueAmount, 0xFF});
 			win2Btn.ResetState();
 		}
 		else if(win3Btn.GetState() == STATE_CLICKED)
@@ -4360,7 +4374,7 @@ static int MenuPalette()
 			blueAmount = (CurrentPalette.palette[7] >> 0) & 0xFF;
 			PaletteWindow("WIN 3");
 			CurrentPalette.palette[7] = redAmount << 16 | greenAmount << 8 | blueAmount;
-			win3BtnTxt.SetColor((GXColor){redAmount, greenAmount, blueAmount, 255});
+			win3BtnTxt.SetColor((GXColor){(u8)redAmount, (u8)greenAmount, (u8)blueAmount, 0xFF});
 			win3Btn.ResetState();
 		}
 		else if(obj0Btn.GetState() == STATE_CLICKED)
@@ -4370,7 +4384,7 @@ static int MenuPalette()
 			blueAmount = (CurrentPalette.palette[8] >> 0) & 0xFF;
 			PaletteWindow("OBJ 0");
 			CurrentPalette.palette[8] = redAmount << 16 | greenAmount << 8 | blueAmount;
-			obj0BtnTxt.SetColor((GXColor){redAmount, greenAmount, blueAmount, 255});
+			obj0BtnTxt.SetColor((GXColor){(u8)redAmount, (u8)greenAmount, (u8)blueAmount, 0xFF});
 			obj0Btn.ResetState();
 		}
 		else if(obj1Btn.GetState() == STATE_CLICKED)
@@ -4380,7 +4394,7 @@ static int MenuPalette()
 			blueAmount = (CurrentPalette.palette[9] >> 0) & 0xFF;
 			PaletteWindow("OBJ 1");
 			CurrentPalette.palette[9] = redAmount << 16 | greenAmount << 8 | blueAmount;
-			obj1BtnTxt.SetColor((GXColor){redAmount, greenAmount, blueAmount, 255});
+			obj1BtnTxt.SetColor((GXColor){(u8)redAmount, (u8)greenAmount, (u8)blueAmount, 0xFF});
 			obj1Btn.ResetState();
 		}
 		else if(obj2Btn.GetState() == STATE_CLICKED)
@@ -4390,7 +4404,7 @@ static int MenuPalette()
 			blueAmount = (CurrentPalette.palette[10] >> 0) & 0xFF;
 			PaletteWindow("OBJ 2");
 			CurrentPalette.palette[10] = redAmount << 16 | greenAmount << 8 | blueAmount;
-			obj2BtnTxt.SetColor((GXColor){redAmount, greenAmount, blueAmount, 255});
+			obj2BtnTxt.SetColor((GXColor){(u8)redAmount, (u8)greenAmount, (u8)blueAmount, 0xFF});
 			obj2Btn.ResetState();
 		}
 		else if(spr0Btn.GetState() == STATE_CLICKED)
@@ -4400,7 +4414,7 @@ static int MenuPalette()
 			blueAmount = (CurrentPalette.palette[11] >> 0) & 0xFF;
 			PaletteWindow("SPR 0");
 			CurrentPalette.palette[11] = redAmount << 16 | greenAmount << 8 | blueAmount;
-			spr0BtnTxt.SetColor((GXColor){redAmount, greenAmount, blueAmount, 255});
+			spr0BtnTxt.SetColor((GXColor){(u8)redAmount, (u8)greenAmount, (u8)blueAmount, 0xFF});
 			spr0Btn.ResetState();
 		}
 		else if(spr1Btn.GetState() == STATE_CLICKED)
@@ -4410,7 +4424,7 @@ static int MenuPalette()
 			blueAmount = (CurrentPalette.palette[12] >> 0) & 0xFF;
 			PaletteWindow("SPR 1");
 			CurrentPalette.palette[12] = redAmount << 16 | greenAmount << 8 | blueAmount;
-			spr1BtnTxt.SetColor((GXColor){redAmount, greenAmount, blueAmount, 255});
+			spr1BtnTxt.SetColor((GXColor){(u8)redAmount, (u8)greenAmount, (u8)blueAmount, 0xFF});
 			spr1Btn.ResetState();
 		}
 		else if(spr2Btn.GetState() == STATE_CLICKED)
@@ -4420,7 +4434,7 @@ static int MenuPalette()
 			blueAmount = (CurrentPalette.palette[13] >> 0) & 0xFF;
 			PaletteWindow("SPR 2");
 			CurrentPalette.palette[13] = redAmount << 16 | greenAmount << 8 | blueAmount;
-			spr2BtnTxt.SetColor((GXColor){redAmount, greenAmount, blueAmount, 255});
+			spr2BtnTxt.SetColor((GXColor){(u8)redAmount, (u8)greenAmount, (u8)blueAmount, 0xFF});
 			spr2Btn.ResetState();
 		}
 		else if(importBtn.GetState() == STATE_CLICKED)
@@ -4465,8 +4479,10 @@ MainMenu (int menu)
 {
 	static bool init = false;
 	int currentMenu = menu;
-	lastMenu = MENU_NONE;
+	//lastMenu = MENU_NONE;
 	
+	int lastMenu = MENU_NONE; /* local variable here fixes devkitppc r27 crash */
+	GuiTrigger *trigAptr, *trig2ptr; /* local variable here fixes devkitppc r27 crash */
 	if(!init)
 	{
 		init = true;
@@ -4533,6 +4549,9 @@ MainMenu (int menu)
 	mainWindow->Append(bgBottomImg);
 	mainWindow->Append(btnLogo);
 
+	trigAptr = trigA;
+	trig2ptr = trig2;
+
 	if(currentMenu == MENU_GAMESELECTION)
 		ResumeGui();
 
@@ -4578,7 +4597,7 @@ MainMenu (int menu)
 				currentMenu = MenuGameSelection();
 				break;
 			case MENU_GAME:
-				currentMenu = MenuGame();
+				currentMenu = MenuGame(lastMenu);
 				break;
 			case MENU_GAME_LOAD:
 				currentMenu = MenuGameSaves(0);
@@ -4602,7 +4621,7 @@ MainMenu (int menu)
 				currentMenu = MenuPalette();
 				break;
 			case MENU_SETTINGS:
-				currentMenu = MenuSettings();
+				currentMenu = MenuSettings(trigAptr,trig2ptr);
 				break;
 			case MENU_SETTINGS_FILE:
 				currentMenu = MenuSettingsFile();
