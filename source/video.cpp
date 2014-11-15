@@ -11,6 +11,7 @@
 
 #include <gccore.h>
 #include <ogcsys.h>
+#include <ogc/machine/processor.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -498,6 +499,14 @@ static inline void UpdateScaling()
 		xscale *= zoomHor;
 		yscale *= zoomVert;
 	}
+	
+	#ifdef HW_RVL
+	if ((*(u32*)(0xCD8005A0) >> 16) == 0xCAFE) // Wii U
+	{
+		/* vWii widescreen patch by tueidj */
+		write32(0xd8006a0, fixed ? 0x30000002 : 0x30000004), mask32(0xd8006a8, 0, 2);
+	}
+	#endif
 
 	// Set new aspect
 	square[0] = square[9]  = -xscale + GCSettings.xshift;
@@ -762,6 +771,14 @@ void TakeScreenshot()
 void
 ResetVideo_Menu ()
 {
+	#ifdef HW_RVL
+	if ((*(u32*)(0xCD8005A0) >> 16) == 0xCAFE) // Wii U
+	{
+		/* vWii widescreen patch by tueidj */
+		write32(0xd8006a0, 0x30000004), mask32(0xd8006a8, 0, 2);
+	}
+	#endif
+	
 	Mtx44 p;
 	f32 yscale;
 	u32 xfbHeight;
