@@ -16,7 +16,7 @@
 
 void InitializeVideo ();
 void GX_Render_Init(int width, int height);
-void GX_Render(int width, int height, u8 * buffer, int pitch);
+void GX_Render(int borderWidth, int borderHeight, int gbWidth, int gbHeight, u8 * buffer);
 void StopGX();
 void ResetVideo_Emu();
 void ResetVideo_Menu();
@@ -40,7 +40,9 @@ extern u32 FrameTimer;
 
 char *AllocAndGetSGBBorderPath(const char* title);
 void SaveSGBBorderIfNoneExists(const void* buffer);
-extern u16 *SGBDefaultBorder;
+extern u16 *InitialBorder;
+extern int InitialBorderWidth;
+extern int InitialBorderHeight;
 extern bool SGBBorderLoadedFromGame;
 
 #endif

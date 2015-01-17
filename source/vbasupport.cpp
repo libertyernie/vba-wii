@@ -693,11 +693,16 @@ void systemUpdateMotionSensor()
 ****************************************************************************/
 static int srcWidth = 0;
 static int srcHeight = 0;
-static int srcPitch = 0;
 
 void systemDrawScreen()
 {
-	GX_Render( srcWidth, srcHeight, pix, srcPitch );
+	GX_Render(
+		InitialBorder ? InitialBorderWidth : srcWidth,
+		InitialBorder ? InitialBorderHeight : srcHeight,
+		srcWidth,
+		srcHeight,
+		pix
+	);
 }
 
 static bool ValidGameId(u32 id)
@@ -962,19 +967,19 @@ char* AllocAndGetSGBBorderPath(const char* title) {
 
 void LoadSGBBorder()
 {
-	void* png_tmp_buf = malloc(256*256*3); // PNG file should never be bigger than uncompressed RGBA8
+	void* png_tmp_buf = malloc(1024*1024);
 	char* borderPath = AllocAndGetSGBBorderPath(NULL);
 	PNGUPROP imgProp;
 	IMGCTX ctx = NULL;
 	char error[1024]; error[1023] = 0;
 	int r;
 	
-	bool borderLoaded = LoadFile((char*)png_tmp_buf, borderPath, 256*256*3, SILENT);
+	bool borderLoaded = LoadFile((char*)png_tmp_buf, borderPath, 1024*1024, SILENT);
 	if (!borderLoaded) {
 		// Try default border.png
 		free(borderPath);
 		borderPath = AllocAndGetSGBBorderPath("default");
-		borderLoaded = LoadFile((char*)png_tmp_buf, borderPath, 256*256*3, SILENT);
+		borderLoaded = LoadFile((char*)png_tmp_buf, borderPath, 1024*1024, SILENT);
 	}
 	if (!borderLoaded) goto cleanup;
 	
@@ -993,21 +998,24 @@ void LoadSGBBorder()
 		goto cleanup;
 	}
 	
-	if (imgProp.imgWidth != 256 || imgProp.imgHeight != 224) {
-		snprintf(error, 1023, "Wrong size (should be 256x224): %s", borderPath);
+	if (imgProp.imgWidth > 640 || imgProp.imgHeight > 480) {
+		snprintf(error, 1023, "Wrong size (should be 640x480 or smaller): %s", borderPath);
 		ErrorPrompt(error);
 		goto cleanup;
 	}
 	
-	SGBDefaultBorder = (u16*)malloc(256*224*2);
-	r = PNGU_DecodeTo4x4RGB565 (ctx, imgProp.imgWidth, imgProp.imgHeight, SGBDefaultBorder);
+	InitialBorder = (u16*)malloc(640*480*2);
+	r = PNGU_DecodeTo4x4RGB565 (ctx, imgProp.imgWidth, imgProp.imgHeight, InitialBorder);
 	if (r != PNGU_OK) {
 		snprintf(error, 1023, "PNGU decoding error (%d): %s", r, borderPath);
 		ErrorPrompt(error);
-		free(SGBDefaultBorder);
-		SGBDefaultBorder = NULL;
+		free(InitialBorder);
+		InitialBorder = NULL;
 		goto cleanup;
 	}
+	
+	InitialBorderWidth = imgProp.imgWidth;
+	InitialBorderHeight = imgProp.imgHeight;
 	
 cleanup:
 	if (png_tmp_buf) free(png_tmp_buf);
@@ -1142,16 +1150,15 @@ bool LoadVBAROM()
 
 	srcWidth = 0;
 	srcHeight = 0;
-	srcPitch = 0;
 
 	VMClose(); // cleanup GBA memory
 	gbCleanUp(); // cleanup GB memory
 	
-	if (SGBDefaultBorder != NULL) {
-		free(SGBDefaultBorder);
-		SGBDefaultBorder = NULL;
+	if (InitialBorder != NULL) {
+		free(InitialBorder);
+		InitialBorder = NULL;
 	}
-	SGBBorderLoadedFromGame = true; // don't try to load
+	SGBBorderLoadedFromGame = false; // don't try to copy sgb border from game to png unless we're in sgb mode
 
 	if(cartridgeType == 2)
 	{
@@ -1159,7 +1166,6 @@ bool LoadVBAROM()
 		srcWidth = 240;
 		srcHeight = 160;
 		loaded = VMCPULoadROM();
-		srcPitch = 484;
 		soundSetSampleRate(22050); //44100 / 2
 		cpuSaveType = 0;
 		if (loaded == 2) {
@@ -1180,7 +1186,7 @@ bool LoadVBAROM()
 			gbBorderLineSkip = 256;
 			gbBorderColumnSkip = 48;
 			gbBorderRowSkip = 40;
-			SGBBorderLoadedFromGame = false; // try to load
+			SGBBorderLoadedFromGame = false; // try to load the border during rendering
 		}
 		else
 		{
@@ -1192,7 +1198,6 @@ bool LoadVBAROM()
 		}
 
 		loaded = LoadGBROM();
-		srcPitch = srcWidth * 2 + 4;
 		soundSetSampleRate(44100);
 	}
 
@@ -1204,7 +1209,11 @@ bool LoadVBAROM()
 	else
 	{
 		// Setup GX
-		GX_Render_Init(srcWidth, srcHeight);
+		if (InitialBorder) {
+			GX_Render_Init(InitialBorderWidth, InitialBorderHeight);
+		} else {
+			GX_Render_Init(srcWidth, srcHeight);
+		}
 
 		if (cartridgeType == 1)
 		{

@@ -42,7 +42,9 @@ int gameScreenPngSize = 0;
 int screenheight = 480;
 int screenwidth = 640;
 
-u16 *SGBDefaultBorder = NULL;
+u16 *InitialBorder = NULL;
+int InitialBorderWidth = 0;
+int InitialBorderHeight = 0;
 bool SGBBorderLoadedFromGame = false;
 
 /*** 3D GX ***/
@@ -606,6 +608,10 @@ void GX_Render_Init(int width, int height)
 	/*** Setup for first call to scaler ***/
 	vwidth = width;
 	vheight = height;
+	
+	char c[64];
+	sprintf(c, "%d v %dx%d b %dx%d", texturesize, width, height, InitialBorderWidth, InitialBorderHeight);
+	InfoPrompt(c);
 }
 
 bool borderAreaEmpty(const u16* buffer) {
@@ -635,21 +641,23 @@ bool borderAreaEmpty(const u16* buffer) {
 * GX_Render
 *
 * Pass in a buffer, width and height to update as a tiled RGB565 texture
+* (2 bytes per pixel)
 ****************************************************************************/
-void GX_Render(int width, int height, u8 * buffer, int pitch)
+void GX_Render(int borderWidth, int borderHeight, int gbWidth, int gbHeight, u8 * buffer)
 {
 	int h, w;
-	long long int *dst = (long long int *) texturemem;
+	int gbPitch = gbWidth * 2 + 4;
+	long long int *dst = (long long int *) texturemem; // Pointer in 8-byte units / 4-pixel units
 	long long int *src1 = (long long int *) buffer;
-	long long int *src2 = (long long int *) (buffer + pitch);
-	long long int *src3 = (long long int *) (buffer + (pitch << 1));
-	long long int *src4 = (long long int *) (buffer + (pitch * 3));
-	long long int *sgb = (long long int *) SGBDefaultBorder;
-	int rowpitch = (pitch >> 3) * 3;
-	int rowadjust = ( pitch % 8 ) << 2;
+	long long int *src2 = (long long int *) (buffer + gbPitch);
+	long long int *src3 = (long long int *) (buffer + (gbPitch << 1));
+	long long int *src4 = (long long int *) (buffer + (gbPitch * 3));
+	int srcrowpitch = (gbPitch >> 3) * 3;
+	int srcrowadjust = ( gbPitch % 8 ) << 2;
+	int dstrowpitch = borderWidth - gbWidth;
 
-	vwidth = width;
-	vheight = height;
+	vwidth = borderWidth;
+	vheight = borderHeight;
 
 	int vwid2 = (vwidth >> 2);
 	char *ra = NULL;
@@ -669,49 +677,51 @@ void GX_Render(int width, int height, u8 * buffer, int pitch)
 	GX_SetTevOp(GX_TEVSTAGE0, GX_DECAL);
 	GX_SetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD0, GX_TEXMAP0, GX_COLOR0A0);
 	
-	if (!SGBBorderLoadedFromGame && !borderAreaEmpty((u16*)buffer)) {
-		// don't try to load the default border anymore
-		SGBBorderLoadedFromGame = true;
-		SaveSGBBorderIfNoneExists(buffer);
+	if (!SGBBorderLoadedFromGame) {
+		if (borderAreaEmpty((u16*)buffer)) {
+			// TODO: don't paint empty SGB border
+		} else {
+			// don't try to load the default border anymore
+			SGBBorderLoadedFromGame = true;
+			SaveSGBBorderIfNoneExists(buffer);
+		}
 	}
 	
-	for (h = 0; h < vheight; h += 4)
+	// The InitialBorder, if any, should already be properly tiled
+	if (InitialBorder) {
+		memcpy(dst, InitialBorder, borderWidth * borderHeight * 2);
+		
+		int rows_to_skip = (borderHeight - gbHeight) / 2;
+		if (rows_to_skip > 0) dst += rows_to_skip * borderWidth / 4;
+		dst += (borderWidth - gbWidth) / 2;
+	}
+	
+	for (h = 0; h < gbHeight; h += 4)
 	{
-		for (w = 0; w < vwid2; ++w)
+		for (w = 0; w < gbWidth / 4; ++w)
 		{
-			if (sgb && !SGBBorderLoadedFromGame && (h < 40 || h >= 184 || w < 12 || w >= 52)) {
-				*dst++ = *sgb++;
-				*dst++ = *sgb++;
-				*dst++ = *sgb++;
-				*dst++ = *sgb++;
-				src1++;
-				src2++;
-				src3++;
-				src4++;
-			} else {
-				*dst++ = *src1++;
-				*dst++ = *src2++;
-				*dst++ = *src3++;
-				*dst++ = *src4++;
-				if (sgb) sgb += 4;
-			}
+			*dst++ = *src1++;
+			*dst++ = *src2++;
+			*dst++ = *src3++;
+			*dst++ = *src4++;
 		}
 
-		src1 += rowpitch;
-		src2 += rowpitch;
-		src3 += rowpitch;
-		src4 += rowpitch;
+		src1 += srcrowpitch;
+		src2 += srcrowpitch;
+		src3 += srcrowpitch;
+		src4 += srcrowpitch;
+		dst += dstrowpitch;
 
-		if ( rowadjust )
+		if ( srcrowadjust )
 		{
 			ra = (char *)src1;
-			src1 = (long long int *)(ra + rowadjust);
+			src1 = (long long int *)(ra + srcrowadjust);
 			ra = (char *)src2;
-			src2 = (long long int *)(ra + rowadjust);
+			src2 = (long long int *)(ra + srcrowadjust);
 			ra = (char *)src3;
-			src3 = (long long int *)(ra + rowadjust);
+			src3 = (long long int *)(ra + srcrowadjust);
 			ra = (char *)src4;
-			src4 = (long long int *)(ra + rowadjust);
+			src4 = (long long int *)(ra + srcrowadjust);
 		}
 	}
 	

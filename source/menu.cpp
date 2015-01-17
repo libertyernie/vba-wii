@@ -3052,7 +3052,9 @@ static int MenuSettingsEmulation()
 				break;
 			
 			case 1:
-				GCSettings.SGBBorder ^= 1;
+				GCSettings.SGBBorder++;
+				if (GCSettings.SGBBorder > 2)
+					GCSettings.SGBBorder = 0;
 				break;
 			
 			case 2:
