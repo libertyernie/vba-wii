@@ -697,8 +697,6 @@ static int srcHeight = 0;
 void systemDrawScreen()
 {
 	GX_Render(
-		InitialBorder ? InitialBorderWidth : srcWidth,
-		InitialBorder ? InitialBorderHeight : srcHeight,
 		srcWidth,
 		srcHeight,
 		pix

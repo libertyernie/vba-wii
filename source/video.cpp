@@ -608,10 +608,6 @@ void GX_Render_Init(int width, int height)
 	/*** Setup for first call to scaler ***/
 	vwidth = width;
 	vheight = height;
-	
-	char c[64];
-	sprintf(c, "%d v %dx%d b %dx%d", texturesize, width, height, InitialBorderWidth, InitialBorderHeight);
-	InfoPrompt(c);
 }
 
 bool borderAreaEmpty(const u16* buffer) {
@@ -643,8 +639,11 @@ bool borderAreaEmpty(const u16* buffer) {
 * Pass in a buffer, width and height to update as a tiled RGB565 texture
 * (2 bytes per pixel)
 ****************************************************************************/
-void GX_Render(int borderWidth, int borderHeight, int gbWidth, int gbHeight, u8 * buffer)
+void GX_Render(int gbWidth, int gbHeight, u8 * buffer)
 {
+	int borderWidth = InitialBorder ? InitialBorderWidth : gbWidth;
+	int borderHeight = InitialBorder ? InitialBorderHeight : gbHeight;
+
 	int h, w;
 	int gbPitch = gbWidth * 2 + 4;
 	long long int *dst = (long long int *) texturemem; // Pointer in 8-byte units / 4-pixel units
@@ -677,7 +676,7 @@ void GX_Render(int borderWidth, int borderHeight, int gbWidth, int gbHeight, u8 
 	GX_SetTevOp(GX_TEVSTAGE0, GX_DECAL);
 	GX_SetTevOrder(GX_TEVSTAGE0, GX_TEXCOORD0, GX_TEXMAP0, GX_COLOR0A0);
 	
-	if (!SGBBorderLoadedFromGame) {
+	if (gbWidth == 256 && gbHeight == 224 && !SGBBorderLoadedFromGame) {
 		if (borderAreaEmpty((u16*)buffer)) {
 			// TODO: don't paint empty SGB border
 		} else {

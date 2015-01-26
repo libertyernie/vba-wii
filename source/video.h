@@ -16,7 +16,7 @@
 
 void InitializeVideo ();
 void GX_Render_Init(int width, int height);
-void GX_Render(int borderWidth, int borderHeight, int gbWidth, int gbHeight, u8 * buffer);
+void GX_Render(int gbWidth, int gbHeight, u8 * buffer);
 void StopGX();
 void ResetVideo_Emu();
 void ResetVideo_Menu();
