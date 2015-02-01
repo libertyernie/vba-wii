@@ -2876,7 +2876,7 @@ static int MenuSettingsVideo()
 
 			case 5:
 				GCSettings.videomode++;
-				if(GCSettings.videomode > 4)
+				if(GCSettings.videomode > 5)
 					GCSettings.videomode = 0;
 				break;
 
@@ -2952,6 +2952,8 @@ static int MenuSettingsVideo()
 					sprintf (options.value[5], "PAL (50Hz)"); break;
 				case 4:
 					sprintf (options.value[5], "PAL (60Hz)"); break;
+				case 5:
+					sprintf (options.value[5], "NTSC (240p) (Experimental)"); break;
 			}
 
 			if (GCSettings.colorize)
