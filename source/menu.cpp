@@ -3053,7 +3053,7 @@ static int MenuSettingsEmulation()
 			
 			case 1:
 				GCSettings.SGBBorder++;
-				if (GCSettings.SGBBorder > 1)
+				if (GCSettings.SGBBorder > 2)
 					GCSettings.SGBBorder = 0;
 				break;
 			
@@ -3082,7 +3082,12 @@ static int MenuSettingsEmulation()
 			else if (GCSettings.GBHardware == 5)
 				sprintf (options.value[0], "Super Game Boy 2");
 			
-			sprintf (options.value[1], GCSettings.SGBBorder ? "On" : "Off");
+			if (GCSettings.SGBBorder == 0)
+				sprintf (options.value[1], "Off");
+			else if (GCSettings.SGBBorder == 1)
+				sprintf (options.value[1], "From game (SGB only)");
+			else if (GCSettings.SGBBorder == 2)
+				sprintf (options.value[1], "From .png file");
 			
 			sprintf (options.value[2], "%+.2f", GCSettings.OffsetMinutesUTC / 60.0);
 

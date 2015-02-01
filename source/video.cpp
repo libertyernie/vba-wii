@@ -697,7 +697,7 @@ void GX_Render(int gbWidth, int gbHeight, u8 * buffer)
 	
 	for (h = 0; h < gbHeight; h += 4)
 	{
-		for (w = 0; w < gbWidth / 4; ++w)
+		for (w = 0; w < vwid2; ++w)
 		{
 			*dst++ = *src1++;
 			*dst++ = *src2++;

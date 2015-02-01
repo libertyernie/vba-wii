@@ -918,7 +918,7 @@ void SaveSGBBorderIfNoneExists(const void* buffer) {
 	int err;
 	
 	struct stat s;
-	borderPath = AllocAndGetSGBBorderPath(NULL);
+	borderPath = AllocAndGetPNGBorderPath(NULL);
 	
 	char* slash = strrchr(borderPath, '/');
 	*slash = '\0'; // cut string off at directory name
@@ -950,7 +950,7 @@ cleanup:
 	if (pngContext) PNGU_ReleaseImageContext(pngContext);
 }
 
-char* AllocAndGetSGBBorderPath(const char* title) {
+char* AllocAndGetPNGBorderPath(const char* title) {
 	const char* method = pathPrefix[GCSettings.LoadMethod];
 	const char* folder = GCSettings.BorderFolder;
 	
@@ -963,10 +963,10 @@ char* AllocAndGetSGBBorderPath(const char* title) {
 	return path;
 }
 
-void LoadSGBBorder()
+void LoadPNGBorder()
 {
 	void* png_tmp_buf = malloc(1024*1024);
-	char* borderPath = AllocAndGetSGBBorderPath(NULL);
+	char* borderPath = AllocAndGetPNGBorderPath(NULL);
 	PNGUPROP imgProp;
 	IMGCTX ctx = NULL;
 	char error[1024]; error[1023] = 0;
@@ -976,7 +976,7 @@ void LoadSGBBorder()
 	if (!borderLoaded) {
 		// Try default border.png
 		free(borderPath);
-		borderPath = AllocAndGetSGBBorderPath("default");
+		borderPath = AllocAndGetPNGBorderPath("default");
 		borderLoaded = LoadFile((char*)png_tmp_buf, borderPath, 1024*1024, SILENT);
 	}
 	if (!borderLoaded) goto cleanup;
@@ -1073,7 +1073,7 @@ bool LoadGBROM()
 		}
 	}
 	
-	LoadSGBBorder();
+	if (GCSettings.SGBBorder == 2) LoadPNGBorder();
 
 	if(gbRomSize <= 0)
 		return false;
@@ -1175,7 +1175,7 @@ bool LoadVBAROM()
 	if (cartridgeType == 1)
 	{
 		emulator = GBSystem;
-		gbBorderOn = GCSettings.SGBBorder;
+		gbBorderOn = (GCSettings.SGBBorder == 1);
 
 		if(gbBorderOn)
 		{
