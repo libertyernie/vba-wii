@@ -296,8 +296,13 @@ static GXRModeObj * FindVideoMode()
 		case 4: // PAL (60Hz)
 			mode = &TVEurgb60Hz480IntDf;
 			break;
-		case 5: // 240p?
+		case 5: // 240i
+			mode = &TVNtsc240Int;
+			return mode;
+			break;
+		case 6: // 240p
 			mode = &TVNtsc240Ds;
+			return mode;
 			break;
 		default:
 			mode = VIDEO_GetPreferredMode(NULL);
@@ -531,6 +536,10 @@ static inline void UpdateScaling()
 		float vw = vwidth * ratio;
 		if (widescreen) vw /= 4.0 / 3.0;
 		float vh = vheight * ratio;
+		
+		// 240i and 240p adjustment
+		if (GCSettings.videomode == 5 || GCSettings.videomode == 6) vw *= 2;
+		
 		float vx = (vmode->fbWidth - vw) / 2;
 		float vy = (vmode->efbHeight - vh) / 2;
 		GX_SetViewport(vx, vy, vw, vh, 0, 1);
@@ -661,7 +670,7 @@ void GX_Render(int gbWidth, int gbHeight, u8 * buffer)
 	vwidth = borderWidth;
 	vheight = borderHeight;
 
-	int vwid2 = (vwidth >> 2);
+	int vwid2 = (gbWidth >> 2);
 	char *ra = NULL;
 	
 	// Ensure previous vb has complete
