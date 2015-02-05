@@ -606,7 +606,7 @@ void FixInvalidSettings()
 		GCSettings.language = LANG_ENGLISH;
 	if(!(GCSettings.render >= 0 && GCSettings.render < 5))
 		GCSettings.render = 1;
-	if(!(GCSettings.videomode >= 0 && GCSettings.videomode < 7))
+	if(!(GCSettings.videomode >= 0 && GCSettings.videomode < 9))
 		GCSettings.videomode = 0;
 }
 

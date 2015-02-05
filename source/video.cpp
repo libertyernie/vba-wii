@@ -271,6 +271,9 @@ void StopGX()
 	VIDEO_Flush();
 }
 
+static GXRModeObj TVNtsc480IntDf_Orig = TVNtsc480IntDf;
+static GXRModeObj TVNtsc480Prog_Orig = TVNtsc480Prog;
+
 /****************************************************************************
  * FindVideoMode
  *
@@ -296,14 +299,14 @@ static GXRModeObj * FindVideoMode()
 		case 4: // PAL (60Hz)
 			mode = &TVEurgb60Hz480IntDf;
 			break;
-		case 5: // 240i
-			mode = &TVNtsc240Int;
-			return mode;
-			break;
-		case 6: // 240p
-			mode = &TVNtsc240Ds;
-			return mode;
-			break;
+		case 5: // 480i
+			return &TVNtsc480IntDf_Orig;
+		case 6: // 480p
+			return &TVNtsc480Prog_Orig;
+		case 7: // 240i
+			return &TVNtsc240Int;
+		case 8: // 240p
+			return &TVNtsc240Ds;
 		default:
 			mode = VIDEO_GetPreferredMode(NULL);
 
@@ -511,7 +514,7 @@ static inline void UpdateScaling()
 	}
 	
 	#ifdef HW_RVL
-	if ((*(u32*)(0xCD8005A0) >> 16) == 0xCAFE) // Wii U
+	if (CONF_GetAspectRatio() == CONF_ASPECT_16_9 && (*(u32*)(0xCD8005A0) >> 16) == 0xCAFE) // Wii U
 	{
 		/* vWii widescreen patch by tueidj */
 		write32(0xd8006a0, fixed ? 0x30000002 : 0x30000004), mask32(0xd8006a8, 0, 2);
@@ -538,7 +541,7 @@ static inline void UpdateScaling()
 		float vh = vheight * ratio;
 		
 		// 240i and 240p adjustment
-		if (GCSettings.videomode == 5 || GCSettings.videomode == 6) vw *= 2;
+		if (GCSettings.videomode == 7 || GCSettings.videomode == 8) vh /= 2;
 		
 		float vx = (vmode->fbWidth - vw) / 2;
 		float vy = (vmode->efbHeight - vh) / 2;
@@ -793,7 +796,7 @@ void
 ResetVideo_Menu ()
 {
 	#ifdef HW_RVL
-	if ((*(u32*)(0xCD8005A0) >> 16) == 0xCAFE) // Wii U
+	if (CONF_GetAspectRatio() == CONF_ASPECT_16_9 && (*(u32*)(0xCD8005A0) >> 16) == 0xCAFE) // Wii U
 	{
 		/* vWii widescreen patch by tueidj */
 		write32(0xd8006a0, 0x30000004), mask32(0xd8006a8, 0, 2);

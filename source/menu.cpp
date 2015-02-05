@@ -2876,7 +2876,7 @@ static int MenuSettingsVideo()
 
 			case 5:
 				GCSettings.videomode++;
-				if(GCSettings.videomode > 6)
+				if(GCSettings.videomode > 8)
 					GCSettings.videomode = 0;
 				break;
 
@@ -2953,8 +2953,12 @@ static int MenuSettingsVideo()
 				case 4:
 					sprintf (options.value[5], "PAL (60Hz)"); break;
 				case 5:
-					sprintf (options.value[5], "NTSC (240i) (Experimental)"); break;
+					sprintf (options.value[5], "NTSC (480i) (Experimental)"); break;
 				case 6:
+					sprintf (options.value[5], "NTSC (480p) (Experimental)"); break;
+				case 7:
+					sprintf (options.value[5], "NTSC (240i) (Experimental)"); break;
+				case 8:
 					sprintf (options.value[5], "NTSC (240p) (Experimental)"); break;
 			}
 
