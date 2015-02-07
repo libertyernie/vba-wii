@@ -954,8 +954,18 @@ char* AllocAndGetPNGBorderPath(const char* title) {
 	const char* method = pathPrefix[GCSettings.LoadMethod];
 	const char* folder = GCSettings.BorderFolder;
 	
-	// If no title was passed in, reuse the method from goombarom.cpp to get the rom title
-	if (title == NULL) title = gb_get_title(gbRom, NULL);
+	char tmp[13];
+	
+	// If no title was passed in, get the rom title
+	if (title == NULL) {
+		if (cartridgeType == 1) {
+			title = gb_get_title(gbRom, NULL);
+		} else if (cartridgeType == 2) {
+			memcpy(tmp, rom + 0xA0, 12);
+			tmp[12] = '\0';
+			title = tmp;
+		}
+	}
 	
 	size_t length = strlen(method) + strlen(folder) + strlen(title) + 6;
 	char* path = (char*)malloc(length);
@@ -1169,6 +1179,8 @@ bool LoadVBAROM()
 		if (loaded == 2) {
 			loaded = 0;
 			cartridgeType = 1;
+		} else if (loaded == 1 && GCSettings.SGBBorder == 2) {
+			LoadPNGBorder();
 		}
 	}
 	
