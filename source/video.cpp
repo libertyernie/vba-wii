@@ -303,7 +303,7 @@ static GXRModeObj * FindVideoMode()
 			mode = &TVNtsc240Ds;
 			break;
 		case 6: // 240p (Type 2: viWidth = 640)
-			mode &TVNtsc240Ds_Type2;
+			mode = &TVNtsc240Ds_Type2;
 			return mode;
 		default:
 			mode = VIDEO_GetPreferredMode(NULL);

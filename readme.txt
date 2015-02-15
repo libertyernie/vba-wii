@@ -30,11 +30,25 @@ With it you can play GBA/Game Boy Color/Game Boy games on your Wii/GameCube.
 * Screenshots can be displayed on the main menu
 * Fixed pixel ratio mode (1x, 2x, and 3x)
 * Super Game Boy borders (from game or custom)
+* Wii U Pro Controller support
+* 240p support
 
 ×—–­—–­—–­—–­ –­—–­—–­—–­—–­—–­—–­—–­—–­—–­— ­—–­—–­—–­—–­—–­—–­—–­—-­—–­-–•¬
 |0O×øo·                         UPDATE HISTORY                        ·oø×O0|
 `¨•¨¨¨¨¨ ¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨ ¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨ ¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨¨ ¨¨¨¨¨¨¨¨¨¨¨¨¨'
+
+[2.3.2 Release Candidate 1 - ??] - libertyernie
+
+* Wii U: if widescreen is enabled in the Wii U setting, VBA GX will use a 16:9
+  aspect ratio, except while playing a game with fixed pixel mode turned on
+* There are now three options for border in the emulation settings menu (see
+  "Super Game Boy borders" section for details)
+* 240p support added. "Type 1" has viWidth set to 672px like the other video
+  modes in VBA GX; "Type 2" has it at 640px the way libogc does. I'm not sure
+  which is more accurate.
+
 [2.3.1b - November 8, 2014] - Glitch
+
 * Added FIX94's libwupc for WiiU Pro Controllers
 * Added tueidj's vWii Widescreen Fix
 
@@ -593,14 +607,18 @@ Borders can be loaded from two locations:
 * The game itself
 
 Borders will only be loaded from the game itself when the emulator is running
-in Super Game Boy mode. (You can use the Emulation settings on the main menu to
-force SGB mode even for Game Boy Color games.) Whenever a border is loaded
-from the game, it will override the border loaded from the PNG file.
+in Super Game Boy mode, and the border setting in Emulation settings is set to
+"From game (SGB only)". (You can also use the Emulation settings menu to
+force SGB mode even for Game Boy Color games.)
 
 In addition, if the borders folder exists but there is no border for the game,
 the first border loaded from the game will be written to a PNG file so it can
 be loaded in the future (even in Game Boy Color mode.) This means after you
 run a game once in SGB mode, you can then use the same border in GBC mode.
+
+If the border setting is set to "From .png file", borders will be loaded
+from the borders folder. Borders can be up to 640x480 and will work for both
+Game Boy (Color) and Game Boy Advance games.
 
 For both loading and saving, the PNG filename is [TITLE].png, where [TITLE]
 is the ROM title defined at 0x134. For example, POKEMON_SFXAAXE.png will be
