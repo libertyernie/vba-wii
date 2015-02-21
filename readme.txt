@@ -37,15 +37,15 @@ With it you can play GBA/Game Boy Color/Game Boy games on your Wii/GameCube.
 |0Oื๘oท                         UPDATE HISTORY                        ทo๘ืO0|
 `จ•จจจจจ จจจจจจจจจจจจจจจจ จจจจจจจจจจจจจจจ จจจจจจจจจจจจจจจจจจจจ จจจจจจจจจจจจจ'
 
-[2.3.2 Release Candidate 1 - ??] - libertyernie
+[2.3.2 Release Candidate 2 - ??] - libertyernie
 
 * Wii U: if widescreen is enabled in the Wii U setting, VBA GX will use a 16:9
   aspect ratio, except while playing a game with fixed pixel mode turned on
 * There are now three options for border in the emulation settings menu (see
   "Super Game Boy borders" section for details)
-* 240p support added. "Type 1" has viWidth set to 672px like the other video
-  modes in VBA GX; "Type 2" has it at 640px the way libogc does. I'm not sure
-  which is more accurate.
+  * PNG borders now supported for GBA games
+* 240p support added
+* All video modes now use a width of 704 for the best pixel aspect ratio
 
 [2.3.1b - November 8, 2014] - Glitch
 
@@ -621,9 +621,16 @@ from the borders folder. Borders can be up to 640x480 and will work for both
 Game Boy (Color) and Game Boy Advance games.
 
 For both loading and saving, the PNG filename is [TITLE].png, where [TITLE]
-is the ROM title defined at 0x134. For example, POKEMON_SFXAAXE.png will be
-loaded for Pok้mon Silver. If no PNG file by that name exists, VBA-GX will
-try loading default.png instead.
+is the ROM title defined at 0x134 (for GB games) or 0xA0 (for GBA games). For
+example, POKEMON_SFXAAXE.png will be loaded for Pok้mon Silver. If no PNG file
+by that name exists, VBA-GX will try loading default.png (for GB games) or
+defaultgba.png (for GBA games) instead.
+
+Since the borders are rendered along with the video output of the game, the
+pixels in the border will be the same size as game pixels. This means that
+a Game Boy game will appear in the middle 160x144 pixels of the border, and a
+Game Boy Advance game will appear in the middle 240x160 pixels, regardless of
+the resolution of the border PNG image.
 
 -=[ Match Wii Controls ]=-
 
