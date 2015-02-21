@@ -973,7 +973,7 @@ char* AllocAndGetPNGBorderPath(const char* title) {
 	return path;
 }
 
-void LoadPNGBorder()
+void LoadPNGBorder(const char* fallback)
 {
 	void* png_tmp_buf = malloc(1024*1024);
 	char* borderPath = AllocAndGetPNGBorderPath(NULL);
@@ -986,7 +986,7 @@ void LoadPNGBorder()
 	if (!borderLoaded) {
 		// Try default border.png
 		free(borderPath);
-		borderPath = AllocAndGetPNGBorderPath("default");
+		borderPath = AllocAndGetPNGBorderPath(fallback);
 		borderLoaded = LoadFile((char*)png_tmp_buf, borderPath, 1024*1024, SILENT);
 	}
 	if (!borderLoaded) goto cleanup;
@@ -1083,7 +1083,7 @@ bool LoadGBROM()
 		}
 	}
 	
-	if (GCSettings.SGBBorder == 2) LoadPNGBorder();
+	if (GCSettings.SGBBorder == 2) LoadPNGBorder("default");
 
 	if(gbRomSize <= 0)
 		return false;
@@ -1180,7 +1180,7 @@ bool LoadVBAROM()
 			loaded = 0;
 			cartridgeType = 1;
 		} else if (loaded == 1 && GCSettings.SGBBorder == 2) {
-			LoadPNGBorder();
+			LoadPNGBorder("defaultgba");
 		}
 	}
 	
