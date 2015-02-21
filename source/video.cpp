@@ -272,8 +272,6 @@ void StopGX()
 	VIDEO_Flush();
 }
 
-static GXRModeObj TVNtsc240Ds_Type2 = TVNtsc240Ds;
-
 /****************************************************************************
  * FindVideoMode
  *
@@ -299,12 +297,9 @@ static GXRModeObj * FindVideoMode()
 		case 4: // PAL (60Hz)
 			mode = &TVEurgb60Hz480IntDf;
 			break;
-		case 5: // 240p (Type 1: viWidth = 672)
+		case 5: // 240p
 			mode = &TVNtsc240Ds;
 			break;
-		case 6: // 240p (Type 2: viWidth = 640)
-			mode = &TVNtsc240Ds_Type2;
-			return mode;
 		default:
 			mode = VIDEO_GetPreferredMode(NULL);
 
@@ -331,7 +326,7 @@ static GXRModeObj * FindVideoMode()
 	if (mode == &TVPal576IntDfScale)
 		pal = true;
 
-	if (CONF_GetAspectRatio() == CONF_ASPECT_16_9 && mode->xfbHeight != 240)
+	/*if (CONF_GetAspectRatio() == CONF_ASPECT_16_9 && mode->xfbHeight != 240)
 	{
 		if (pal)
 		{
@@ -349,9 +344,9 @@ static GXRModeObj * FindVideoMode()
 		mode->efbHeight = 456;
 		mode->viWidth = 686;
 	}
-	else
+	else*/
 	{
-		mode->viWidth = 672;
+		mode->viWidth = 704;
 	}
 
 	if (pal)
@@ -538,8 +533,8 @@ static inline void UpdateScaling()
 		if (widescreen) vw /= 4.0 / 3.0;
 		float vh = vheight * ratio;
 		
-		// 240i and 240p adjustment
-		if (GCSettings.videomode == 5 || GCSettings.videomode == 6) vw *= 2;
+		// 240p adjustment
+		if (GCSettings.videomode == 5) vw *= 2;
 		
 		float vx = (vmode->fbWidth - vw) / 2;
 		float vy = (vmode->efbHeight - vh) / 2;
