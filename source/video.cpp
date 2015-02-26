@@ -297,8 +297,11 @@ static GXRModeObj * FindVideoMode()
 		case 4: // PAL (60Hz)
 			mode = &TVEurgb60Hz480IntDf;
 			break;
-		case 5: // 240p
+		case 5: // NTSC (240p)
 			mode = &TVNtsc240Ds;
+			break;
+		case 6: // PAL (60Hz 240p)
+			mode = &TVEurgb60Hz240Ds;
 			break;
 		default:
 			mode = VIDEO_GetPreferredMode(NULL);
