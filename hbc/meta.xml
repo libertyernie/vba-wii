@@ -3,7 +3,7 @@
   <name>Visual Boy Advance GX</name>
   <coder>libertyernie</coder>
   <version>2.3.2</version>
-  <release_date>20150214</release_date>
+  <release_date>20150301</release_date>
   <short_description>GBA/GBC/GB Emulator</short_description>
   <long_description>A port of Visual Boy Advance - M to the Wii.</long_description>
   <ahb_access />

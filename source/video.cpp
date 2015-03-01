@@ -537,7 +537,7 @@ static inline void UpdateScaling()
 		float vh = vheight * ratio;
 		
 		// 240p adjustment
-		if (GCSettings.videomode == 5) vw *= 2;
+		if (GCSettings.videomode == 5 || GCSettings.videomode == 6) vw *= 2;
 		
 		float vx = (vmode->fbWidth - vw) / 2;
 		float vy = (vmode->efbHeight - vh) / 2;

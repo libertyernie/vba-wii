@@ -772,7 +772,7 @@ static void WindowCredits(void * ptr)
 	txt[i] = new GuiText("Credits", 20, (GXColor){0, 0, 0, 255});
 	txt[i]->SetAlignment(ALIGN_CENTRE, ALIGN_TOP); txt[i]->SetPosition(0,y); i++; y+=24;
 
-	txt[i] = new GuiText("2.3.2 rc3 - github.com/libertyernie/vba-wii", 20, (GXColor){0, 0, 0, 255});
+	txt[i] = new GuiText("version 2.3.2 - github.com/libertyernie/vba-wii", 20, (GXColor){0, 0, 0, 255});
 	txt[i]->SetAlignment(ALIGN_CENTRE, ALIGN_TOP); txt[i]->SetPosition(0,y); i++; y+=32;
 
 	txt[i]->SetPresets(20, (GXColor){0, 0, 0, 255}, 0,
@@ -2947,15 +2947,15 @@ static int MenuSettingsVideo()
 				case 1:
 					sprintf (options.value[5], "NTSC (480i)"); break;
 				case 2:
-					sprintf (options.value[5], "Progressive (480p)"); break;
+					sprintf (options.value[5], "NTSC (480p)"); break;
 				case 3:
-					sprintf (options.value[5], "PAL (50Hz)"); break;
+					sprintf (options.value[5], "PAL (576i)"); break;
 				case 4:
-					sprintf (options.value[5], "PAL (60Hz)"); break;
+					sprintf (options.value[5], "European RGB (240i)"); break;
 				case 5:
 					sprintf (options.value[5], "NTSC (240p)"); break;
 				case 6:
-					sprintf (options.value[5], "PAL (60Hz 240p)"); break;
+					sprintf (options.value[5], "European RGB (240p)"); break;
 			}
 
 			if (GCSettings.colorize)

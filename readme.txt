@@ -29,7 +29,7 @@ With it you can play GBA/Game Boy Color/Game Boy games on your Wii/GameCube.
 * Improved video rendering from RetroArch
 * Screenshots can be displayed on the main menu
 * Fixed pixel ratio mode (1x, 2x, and 3x)
-* Super Game Boy borders (from game or custom)
+* Borders (from Super Game Boy games or custom from .png)
 * Wii U Pro Controller support
 * 240p support
 
@@ -37,14 +37,16 @@ With it you can play GBA/Game Boy Color/Game Boy games on your Wii/GameCube.
 |0Oื๘oท                         UPDATE HISTORY                        ทo๘ืO0|
 `จ•จจจจจ จจจจจจจจจจจจจจจจ จจจจจจจจจจจจจจจ จจจจจจจจจจจจจจจจจจจจ จจจจจจจจจจจจจ'
 
-[2.3.2 Release Candidate 2 - ??] - libertyernie
+[2.3.2 - March 1, 2015] - libertyernie
 
 * Wii U: if widescreen is enabled in the Wii U setting, VBA GX will use a 16:9
   aspect ratio, except while playing a game with fixed pixel mode turned on
 * There are now three options for border in the emulation settings menu (see
   "Super Game Boy borders" section for details)
   * PNG borders now supported for GBA games
-* 240p support added
+* Video mode "PAL (50Hz)" renamed to "PAL (576i)"
+* Video mode "PAL (60Hz)" renamed to "European RGB (480i)"
+* 240p support added (NTSC and European RGB modes)
 * All video modes now use a width of 704 for the best pixel aspect ratio
 
 [2.3.1b - November 8, 2014] - Glitch
@@ -609,7 +611,9 @@ Borders can be loaded from two locations:
 Borders will only be loaded from the game itself when the emulator is running
 in Super Game Boy mode, and the border setting in Emulation settings is set to
 "From game (SGB only)". (You can also use the Emulation settings menu to
-force SGB mode even for Game Boy Color games.)
+force SGB mode even for Game Boy Color games.) If the borders folder exists,
+but no border for the game is present, the loaded Super Game Boy border will
+be written to a .png file, which can be loaded later in "From .png file" mode.
 
 In addition, if the borders folder exists but there is no border for the game,
 the first border loaded from the game will be written to a PNG file so it can
@@ -674,8 +678,8 @@ Medal Of Honour Underground, Medal Of Honour Infiltrator
 
 One Piece can be played with One Piece Unlimited Adventure controls.
 
-Boktai 1, Boktai 2, Boktai 3, Kirby's Tilt n Tumble, and WarioWare Twisted 
-can be played with controls I designed for them.
+Boktai 1, Boktai 2, Boktai 3, and Kirby's Tilt n Tumble can be played with
+controls Tantric designed for them.
 
 -=[ Zelda, Match Wii Controls ]=-
 
@@ -934,20 +938,9 @@ Z or 1 = change element, or change subscreen (L)
 
 -=[ WarioWare Twisted, Match Wii Controls ]=-
 
-Turn "Match Wii Controls" ON to use these controls.
-
-WarioWare Twisted uses similar controls to the Gameboy game.
-
-The Wii WarioWare Twisted controls are:
-=======================================
-
-Rotate the Wii Remote to rotate.
-
-Hold Z to lock the current menu item.
-
-A = Select
-B = Cancel
-+ = Start
+NOTE: For unknown reasons (but probably related to the update of the VBA-M
+emulator code), WarioWare Twisted will no longer work on VBA-GX. For now, you
+will need to go back to VBA-GX 2.2.8 to play it.
 
 -=[ Kirby's Tilt n Tumble, Match Wii Controls ]=-
 
