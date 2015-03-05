@@ -37,7 +37,7 @@ With it you can play GBA/Game Boy Color/Game Boy games on your Wii/GameCube.
 |0Oื๘oท                         UPDATE HISTORY                        ทo๘ืO0|
 `จ•จจจจจ จจจจจจจจจจจจจจจจ จจจจจจจจจจจจจจจ จจจจจจจจจจจจจจจจจจจจ จจจจจจจจจจจจจ'
 
-[2.3.2 - March 1, 2015] - libertyernie
+[2.3.2 - March 4, 2015] - libertyernie
 
 * Wii U: if widescreen is enabled in the Wii U setting, VBA GX will use a 16:9
   aspect ratio, except while playing a game with fixed pixel mode turned on
