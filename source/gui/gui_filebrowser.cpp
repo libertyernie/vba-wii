@@ -39,6 +39,7 @@ GuiFileBrowser::GuiFileBrowser(int w, int h)
 	bgFileSelectionImg = new GuiImage(bgFileSelection);
 	bgFileSelectionImg->SetParent(this);
 	bgFileSelectionImg->SetAlignment(ALIGN_LEFT, ALIGN_MIDDLE);
+	bgFileSelectionImg->SetPosition(32, 0);
 
 	bgFileSelectionEntry = new GuiImageData(bg_game_selection_entry_png);
 
@@ -52,7 +53,7 @@ GuiFileBrowser::GuiFileBrowser(int w, int h)
 	scrollbarImg = new GuiImage(scrollbar);
 	scrollbarImg->SetParent(this);
 	scrollbarImg->SetAlignment(ALIGN_RIGHT, ALIGN_TOP);
-	scrollbarImg->SetPosition(0, 30);
+	scrollbarImg->SetPosition(33, 39);
 
 	arrowDown = new GuiImageData(scrollbar_arrowdown_png);
 	arrowDownImg = new GuiImage(arrowDown);
@@ -78,6 +79,7 @@ GuiFileBrowser::GuiFileBrowser(int w, int h)
 	arrowUpBtn->SetTrigger(trigHeldA);
 	arrowUpBtn->SetSoundOver(btnSoundOver);
 	arrowUpBtn->SetSoundClick(btnSoundClick);
+	arrowUpBtn->SetPosition(32, 0);
 
 	arrowDownBtn = new GuiButton(arrowDownImg->GetWidth(), arrowDownImg->GetHeight());
 	arrowDownBtn->SetParent(this);
@@ -90,6 +92,7 @@ GuiFileBrowser::GuiFileBrowser(int w, int h)
 	arrowDownBtn->SetTrigger(trigHeldA);
 	arrowDownBtn->SetSoundOver(btnSoundOver);
 	arrowDownBtn->SetSoundClick(btnSoundClick);
+	arrowDownBtn->SetPosition(32, 0);
 
 	scrollbarBoxBtn = new GuiButton(scrollbarBoxImg->GetWidth(), scrollbarBoxImg->GetHeight());
 	scrollbarBoxBtn->SetParent(this);
@@ -102,12 +105,13 @@ GuiFileBrowser::GuiFileBrowser(int w, int h)
 	scrollbarBoxBtn->SetClickable(false);
 	scrollbarBoxBtn->SetHoldable(true);
 	scrollbarBoxBtn->SetTrigger(trigHeldA);
+	scrollbarBoxBtn->SetPosition(32, 0);
 
 	for(int i=0; i<FILE_PAGESIZE; ++i)
 	{
 		fileListText[i] = new GuiText(NULL, 20, (GXColor){0, 0, 0, 0xff});
 		fileListText[i]->SetAlignment(ALIGN_LEFT, ALIGN_MIDDLE);
-		fileListText[i]->SetPosition(5,0);
+		fileListText[i]->SetPosition(4,0);
 		fileListText[i]->SetMaxWidth(380);
 
 		fileListBg[i] = new GuiImage(bgFileSelectionEntry);
@@ -117,7 +121,7 @@ GuiFileBrowser::GuiFileBrowser(int w, int h)
 		fileList[i]->SetParent(this);
 		fileList[i]->SetLabel(fileListText[i]);
 		fileList[i]->SetImageOver(fileListBg[i]);
-		fileList[i]->SetPosition(2,26*i+3);
+		fileList[i]->SetPosition(36,26*i+3);
 		fileList[i]->SetTrigger(trigA);
 		fileList[i]->SetTrigger(trig2);
 		fileList[i]->SetSoundClick(btnSoundClick);
@@ -430,7 +434,7 @@ void GuiFileBrowser::Update(GuiTrigger * t)
 	if(positionWiimote > 0)
 	{
 		position = positionWiimote; // follow wiimote cursor
-		scrollbarBoxBtn->SetPosition(0,position+36);
+		scrollbarBoxBtn->SetPosition(32,position+36);
 	}
 	else if(listChanged || numEntries != browser.numEntries)
 	{
@@ -446,7 +450,7 @@ void GuiFileBrowser::Update(GuiTrigger * t)
 		{
 			position = 156 * (browser.pageIndex + FILE_PAGESIZE/2) / (float)browser.numEntries;
 		}
-		scrollbarBoxBtn->SetPosition(0,position+36);
+		scrollbarBoxBtn->SetPosition(32,position+36);
 	}
 
 	listChanged = false;
