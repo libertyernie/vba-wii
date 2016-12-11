@@ -9,6 +9,7 @@
  ***************************************************************************/
 
 #include <gccore.h>
+#include <ogc/machine/processor.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -312,6 +313,14 @@ extern "C" {
 ****************************************************************************/
 int main(int argc, char *argv[])
 {
+
+	if ( (*(u32*)(0xCD8005A0) >> 16 ) == 0xCAFE ) // Wii U
+	{
+	/* vWii widescreen patch by tueidj */
+	write32(0xd8006a0, 0x30000004), mask32(0xd8006a8, 0, 2);
+	}
+
+
 	#ifdef HW_RVL
 	L2Enhance();
 	
